@@ -36,6 +36,19 @@ namespace SistemaGestaoEscola.Web
             .AddEntityFrameworkStores<DataContext>()
             .AddDefaultTokenProviders();
 
+            //Password rules configuration
+
+            builder.Services.Configure<IdentityOptions>(options =>
+            {
+                options.Password.RequireDigit = true;
+                options.Password.RequiredLength = 8;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireLowercase = true;
+            });
+
+            //Services
+
             builder.Services.AddTransient<SeedDb>();
 
             builder.Services.AddScoped<IUserHelper, UserHelper>();
