@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using SistemaGestaoEscola.Web.Data.Entities;
+using SistemaGestaoEscola.Web.Models;
 
 namespace SistemaGestaoEscola.Web.Helpers.Interfaces
 {
@@ -9,7 +10,7 @@ namespace SistemaGestaoEscola.Web.Helpers.Interfaces
 
         Task<IdentityResult> AddUserAsync(User user, string password);
 
-        //Task<SignInResult> LoginAsync(LoginViewModel model); //TODO: Implement Login
+        Task<SignInResult> LoginAsync(LoginViewModel model);
 
         Task LogOutAsync();
 
@@ -22,5 +23,11 @@ namespace SistemaGestaoEscola.Web.Helpers.Interfaces
         Task AddUserToRoleAsync(User user, string roleName);
 
         Task<bool> IsUserInRoleAsync(User user, string roleName);
+
+        Task<string> GenerateEmailConfirmationTokenAsync(User user);
+
+        Task<IdentityResult> ConfirmEmailAsync(User user, string token);
+
+        Task<IList<string>> GetRolesAsync(User user);
     }
 }

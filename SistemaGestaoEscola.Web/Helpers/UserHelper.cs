@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using SistemaGestaoEscola.Web.Data.Entities;
 using SistemaGestaoEscola.Web.Helpers.Interfaces;
+using SistemaGestaoEscola.Web.Models;
 
 namespace SistemaGestaoEscola.Web.Helpers
 {
@@ -59,6 +60,15 @@ namespace SistemaGestaoEscola.Web.Helpers
             return _userManager.IsInRoleAsync(user, roleName);
         }
 
+        public async Task<SignInResult> LoginAsync(LoginViewModel model)
+        {
+            return await _signInManager.PasswordSignInAsync(
+                model.UserName,
+                model.Password,
+                model.RemenberMe,
+                false);
+        }
+
         public async Task LogOutAsync()
         {
             await _signInManager.SignOutAsync();
@@ -68,5 +78,21 @@ namespace SistemaGestaoEscola.Web.Helpers
         {
             return await _userManager.UpdateAsync(user);
         }
+
+        public async Task<string> GenerateEmailConfirmationTokenAsync(User user)
+        {
+            return await _userManager.GenerateEmailConfirmationTokenAsync(user);
+        }
+
+        public async Task<IdentityResult> ConfirmEmailAsync(User user, string token)
+        {
+            return await _userManager.ConfirmEmailAsync(user, token);
+        }
+
+        public async Task<IList<string>> GetRolesAsync(User user)
+        {
+            return await _userManager.GetRolesAsync(user);
+        }
+
     }
 }

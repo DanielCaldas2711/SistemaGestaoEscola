@@ -30,7 +30,8 @@ namespace SistemaGestaoEscola.Web.Data
                 LastName = "Silva",
                 Email = "admin@escola.com",
                 UserName = "admin@escola.com",
-                PhoneNumber = "910489426"
+                PhoneNumber = "910489426",
+                LockoutEnabled = false
             });      //Creating Admin user if it is not created
 
         }
@@ -55,6 +56,8 @@ namespace SistemaGestaoEscola.Web.Data
                 if (result.Succeeded)
                 {
                     await _userHelper.AddUserToRoleAsync(user, "Admin");
+                    var token = await _userHelper.GenerateEmailConfirmationTokenAsync(user);
+                    await _userHelper.ConfirmEmailAsync(user, token);
                 }
             }
         }
