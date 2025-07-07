@@ -1,9 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using SistemaGestaoEscola.Web.Data.Entities;
-using SistemaGestaoEscola.Web.Helpers;
 using SistemaGestaoEscola.Web.Helpers.Interfaces;
-using SistemaGestaoEscola.Web.Models;
 
 namespace SistemaGestaoEscola.Web.Data
 {
@@ -40,7 +37,7 @@ namespace SistemaGestaoEscola.Web.Data
         {
             var roles = new[] { "Admin", "Funcionario", "Aluno", "Anonimo" };
 
-            foreach (var role in roles) 
+            foreach (var role in roles)
             {
                 await _userHelper.CheckRoleAsync(role);
             }
@@ -56,7 +53,9 @@ namespace SistemaGestaoEscola.Web.Data
                 if (result.Succeeded)
                 {
                     await _userHelper.AddUserToRoleAsync(user, "Admin");
+
                     var token = await _userHelper.GenerateEmailConfirmationTokenAsync(user);
+
                     await _userHelper.ConfirmEmailAsync(user, token);
                 }
             }

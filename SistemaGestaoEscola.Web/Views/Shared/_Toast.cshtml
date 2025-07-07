@@ -1,0 +1,88 @@
+﻿@if (TempData["ToastSuccess"] != null || TempData["ToastError"] != null)
+{
+    <div class="toast-container position-fixed end-0 p-4" style="top: 40px; z-index: 1060;">
+        @if (TempData["ToastSuccess"] != null)
+        {
+            <div id="toastSuccess" class="custom-toast custom-toast-success shadow">
+                <div class="d-flex align-items-center">                    
+                    <div class="toast-content">
+                       @TempData["ToastSuccess"]
+                    </div>
+                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="toast" aria-label="Fechar"></button>
+                </div>
+            </div>
+        }
+
+        @if (TempData["ToastError"] != null)
+        {
+            <div id="toastError" class="custom-toast custom-toast-error shadow">
+                <div class="d-flex align-items-center">                    
+                    <div class="toast-content">
+                        @TempData["ToastError"]
+                    </div>
+                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="toast" aria-label="Fechar"></button>
+                </div>
+            </div>
+        }
+    </div>
+
+    <style>
+        .custom-toast {
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            color: #fff;
+            animation: slideIn 0.5s ease forwards;
+            display: flex;
+            align-items: center;
+            min-width: 300px;
+        }
+
+        .custom-toast-success {
+            background-color: #198754; /* Bootstrap green */
+        }
+
+        .custom-toast-error {
+            background-color: #dc3545; /* Bootstrap red */
+        }
+
+        .toast-icon {
+            font-size: 1.5rem;
+        }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        @@keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const hideToast = (el) => {
+                el.style.transition = "opacity 0.4s ease";
+                el.style.opacity = 0;
+                setTimeout(() => el.remove(), 400);
+            };
+
+            const toastSuccess = document.getElementById("toastSuccess");
+            const toastError = document.getElementById("toastError");
+
+            if (toastSuccess) {
+                setTimeout(() => hideToast(toastSuccess), 5000);
+            }
+            if (toastError) {
+                setTimeout(() => hideToast(toastError), 5000);
+            }
+        });
+    </script>
+}

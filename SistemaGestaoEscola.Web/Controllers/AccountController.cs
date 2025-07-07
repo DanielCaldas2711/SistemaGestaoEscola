@@ -16,10 +16,10 @@ namespace SistemaGestaoEscola.Web.Controllers
         public IActionResult Login()
         {
             if (User.Identity.IsAuthenticated)
-            {
+            {                
                 return RedirectToAction("Index", "Home");
             }
-
+            
             return View();
         }
 
@@ -32,15 +32,19 @@ namespace SistemaGestaoEscola.Web.Controllers
                 
                 if (result.Succeeded) 
                 {
+                    TempData["ToastSuccess"] = "Login feito com sucesso.";
                     return RedirectToAction("Index", "Home");
                 }                
             }
 
+            TempData["ToastError"] = "Erro ao efetuar o login.";
             return View(model);
         }
         public async Task<IActionResult> Logout()
         {
             await _userHelper.LogOutAsync();
+
+            TempData["ToastSuccess"] = "Logout feito com sucesso.";
             return RedirectToAction("Index", "Home");
         }
 
