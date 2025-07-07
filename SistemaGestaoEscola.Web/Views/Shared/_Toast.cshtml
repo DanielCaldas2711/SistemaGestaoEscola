@@ -1,6 +1,6 @@
 ﻿@if (TempData["ToastSuccess"] != null || TempData["ToastError"] != null)
 {
-    <div class="toast-container position-fixed end-0 p-4" style="top: 40px; z-index: 1060;">
+    <div class="toast-container position-fixed end-0 p-4" style="z-index: 1060;">
         @if (TempData["ToastSuccess"] != null)
         {
             <div id="toastSuccess" class="custom-toast custom-toast-success shadow">
@@ -73,6 +73,11 @@
                 el.style.opacity = 0;
                 setTimeout(() => el.remove(), 400);
             };
+
+            if (navbar && toastContainer) {
+                const navbarHeight = navbar.offsetHeight;
+                toastContainer.style.top = `${navbarHeight + 5}px`;
+            }
 
             const toastSuccess = document.getElementById("toastSuccess");
             const toastError = document.getElementById("toastError");

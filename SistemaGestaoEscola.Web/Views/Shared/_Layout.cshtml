@@ -48,7 +48,8 @@
                                 <a class="nav-link text-dark" asp-area="" asp-controller="" asp-action="">@userRole</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Logout">Logout</a>
+                                @* <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Logout">Logout</a> *@
+                                <a href="#" class="nav-link text-dark" onclick="confirmLogout(event)">Logout</a> 
                             </li>
                         }
                         else
@@ -63,6 +64,7 @@
         </nav>
     </header>
     @await Html.PartialAsync("_Toast")
+    @await Html.PartialAsync("_ConfirmPopup")
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
@@ -78,5 +80,20 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
+    <script>
+        function confirmLogout(event) { //Script para o confirm button do logout
+            event.preventDefault();
+
+            showConfirmPopup({
+                title: 'Terminar sessão',
+                message: 'Queres terminar a sessão?',
+                onConfirm: () => {
+                    window.location.href = '@Url.Action("Logout", "Account")';
+                }
+            });
+        }
+    </script>
+
 </body>
 </html>

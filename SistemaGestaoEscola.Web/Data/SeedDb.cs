@@ -45,20 +45,23 @@ namespace SistemaGestaoEscola.Web.Data
 
         private async Task EnsureUserAsync(User user)
         {
-            var UserExist = await _userHelper.GetUserByEmailAsync(user.Email);
-            if (UserExist == null)
+            if (user.Email != null)
             {
-                var result = await _userHelper.AddUserAsync(user, "Admin123!");
-
-                if (result.Succeeded)
+                var UserExist = await _userHelper.GetUserByEmailAsync(user.Email);
+                if (UserExist == null)
                 {
-                    await _userHelper.AddUserToRoleAsync(user, "Admin");
+                    var result = await _userHelper.AddUserAsync(user, "Admin123!");
 
-                    var token = await _userHelper.GenerateEmailConfirmationTokenAsync(user);
+                    if (result.Succeeded)
+                    {
+                        await _userHelper.AddUserToRoleAsync(user, "Admin");
 
-                    await _userHelper.ConfirmEmailAsync(user, token);
+                        var token = await _userHelper.GenerateEmailConfirmationTokenAsync(user);
+
+                        await _userHelper.ConfirmEmailAsync(user, token);
+                    }
                 }
-            }
+            }            
         }
     }
 }
