@@ -26,8 +26,12 @@ namespace SistemaGestaoEscola.Web.Helpers.Interfaces
 
         Task<string> GenerateEmailConfirmationTokenAsync(User user);
 
+        Task<string> GeneratePasswordResetTokenAsync(User user);
+
         Task<IdentityResult> ConfirmEmailAsync(User user, string token);
 
         Task<IList<string>> GetRolesAsync(User user);
+
+        Task<IdentityResult> ResetPasswordAsync(User user, string token, string password);
     }
 }
