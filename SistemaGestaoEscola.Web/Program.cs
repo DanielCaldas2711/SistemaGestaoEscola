@@ -1,9 +1,13 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using SistemaGestaoEscola.Web.Data;
 using SistemaGestaoEscola.Web.Data.Entities;
 using SistemaGestaoEscola.Web.Helpers;
 using SistemaGestaoEscola.Web.Helpers.Interfaces;
+using SistemaGestaoEscola.Web.Models;
+using System.Text;
 
 
 namespace SistemaGestaoEscola.Web
@@ -25,33 +29,75 @@ namespace SistemaGestaoEscola.Web
 
             #endregion
 
-            // Add services to the container.            
+            #region Identity
 
-            builder.Services.AddControllersWithViews();
-
+            //Password rules configuration
             builder.Services.AddIdentity<User, IdentityRole>(options =>
             {
-                options.SignIn.RequireConfirmedAccount = true;
+                options.User.RequireUniqueEmail = true;
+                options.Password.RequireDigit = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequiredLength = 6;
             })
             .AddEntityFrameworkStores<DataContext>()
             .AddDefaultTokenProviders();
 
-            //Password rules configuration
+            #endregion
 
-            builder.Services.Configure<IdentityOptions>(options =>
+            #region JWT
+
+            // Getting the JWT data from Secret
+            builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
+            var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>();
+
+            builder.Services.AddAuthentication()
+            .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
             {
-                options.Password.RequireDigit = true;
-                options.Password.RequiredLength = 8;
-                options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequireUppercase = true;
-                options.Password.RequireLowercase = true;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtSettings.Issuer,
+                    ValidAudience = jwtSettings.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key))
+                };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnChallenge = context =>
+                    {
+                        context.HandleResponse();
+                        context.Response.StatusCode = 401;
+                        context.Response.ContentType = "application/json";
+                        var result = System.Text.Json.JsonSerializer.Serialize(new
+                        {
+                            message = "Token não encontrado"
+                        });
+                        return context.Response.WriteAsync(result);
+                    }
+                };
             });
 
-            //Services
+            #endregion
+
+            #region Services
+
+            //Add helpers
 
             builder.Services.AddTransient<SeedDb>();
 
+            //Add Services
             builder.Services.AddScoped<IUserHelper, UserHelper>();
+
+            // Add views            
+
+            builder.Services.AddControllersWithViews();
+
+            #endregion
 
             var app = builder.Build();
 

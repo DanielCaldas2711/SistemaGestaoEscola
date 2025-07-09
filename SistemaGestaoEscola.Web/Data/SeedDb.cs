@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SistemaGestaoEscola.Web.Data.Entities;
+using SistemaGestaoEscola.Web.Data.Enums;
 using SistemaGestaoEscola.Web.Helpers.Interfaces;
 
 namespace SistemaGestaoEscola.Web.Data
@@ -35,9 +36,7 @@ namespace SistemaGestaoEscola.Web.Data
 
         private async Task EnsureRolesAsync()
         {
-            var roles = new[] { "Admin", "Funcionario", "Aluno", "Anonimo" };
-
-            foreach (var role in roles)
+            foreach (string role in Enum.GetNames(typeof(UserRole)))
             {
                 await _userHelper.CheckRoleAsync(role);
             }
