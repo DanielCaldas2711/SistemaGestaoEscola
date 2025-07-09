@@ -7,15 +7,18 @@ namespace SistemaGestaoEscola.Web.Controllers
     public class AccountController : Controller
     {
         private readonly IUserHelper _userHelper;
+        private readonly IMailHelper _mailHelper;
 
-        public AccountController(IUserHelper userHelper)
+        public AccountController(IUserHelper userHelper,
+            IMailHelper mailHelper)
         {
             _userHelper = userHelper;
+            _mailHelper = mailHelper;
         }
 
         public IActionResult Login()
         {
-            if (User.Identity.IsAuthenticated)
+            if (User.Identity != null && User.Identity.IsAuthenticated)
             {                
                 return RedirectToAction("Index", "Home");
             }

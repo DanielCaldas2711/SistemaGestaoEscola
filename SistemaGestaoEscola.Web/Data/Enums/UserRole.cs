@@ -4,7 +4,6 @@
     {
         Admin,
         Funcionario,
-        Aluno,
-        Anonimo
+        Aluno
     }
 }

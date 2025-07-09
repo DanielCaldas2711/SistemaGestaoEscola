@@ -86,15 +86,15 @@ namespace SistemaGestaoEscola.Web
 
             #region Services
 
-            //Add helpers
-
-            builder.Services.AddTransient<SeedDb>();
+            //Add Repositories
 
             //Add Services
+            builder.Services.AddTransient<SeedDb>();
             builder.Services.AddScoped<IUserHelper, UserHelper>();
+            builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("Email"));
+            builder.Services.AddScoped<IMailHelper, MailHelper>();
 
-            // Add views            
-
+            // Add views 
             builder.Services.AddControllersWithViews();
 
             #endregion
