@@ -2,7 +2,7 @@
 using SistemaGestaoEscola.Web.Models.Components;
 using SistemaGestaoEscola.Web.Helpers.Interfaces;
 
-namespace SistemaGestaoEscola.Web.Models.Components
+namespace SistemaGestaoEscola.Web.Helpers.Components
 {
     public class UserSummaryViewComponent : ViewComponent
     {
