@@ -138,5 +138,10 @@ namespace SistemaGestaoEscola.Web.Controllers
             return View(model);
         }
 
+        public async Task<IActionResult> EditProfile()
+        {
+            return View();
+        }
+
     }
 }
