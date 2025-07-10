@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using SistemaGestaoEscola.Web.Data.Entities;
 using SistemaGestaoEscola.Web.Helpers.Interfaces;
 using SistemaGestaoEscola.Web.Models;
@@ -102,6 +103,26 @@ namespace SistemaGestaoEscola.Web.Helpers
         public async Task<IdentityResult> ResetPasswordAsync(User user, string token, string password)
         {
             return await _userManager.ResetPasswordAsync(user, token, password);
+        }
+
+        public async Task<IEnumerable<User>> GetAllUsersAsync()
+        {
+            return await _userManager.Users.ToListAsync();
+        }
+
+        public async Task<User> GetUserByIdAsync(string userId)
+        {
+            return await _userManager.FindByIdAsync(userId);
+        }
+
+        public async Task<IdentityResult> DeleteUserAsync(User user)
+        {
+            return await _userManager.DeleteAsync(user);
+        }
+
+        public async Task<IdentityResult> RemoveFromRoleAsync(User user, string role)
+        {
+            return await _userManager.RemoveFromRoleAsync(user, role);
         }
     }
 }

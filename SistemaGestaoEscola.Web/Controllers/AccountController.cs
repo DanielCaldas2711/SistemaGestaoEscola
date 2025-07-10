@@ -199,5 +199,37 @@ namespace SistemaGestaoEscola.Web.Controllers
             return RedirectToAction("EditProfile");
         }
 
+        [HttpGet]
+        public async Task<IActionResult> ConfirmEmail(string email, string token)
+        {
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(token))
+            {
+                TempData["ToastError"] = "Invalid activation link and token.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            var user = await _userHelper.GetUserByEmailAsync(email);
+
+            if (user == null)
+            {
+                TempData["ToastError"] = "User not found.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            var result = await _userHelper.ConfirmEmailAsync(user, token);
+
+            if (result.Succeeded)
+            {
+                TempData["ToastSuccess"] = "Email successfully confirmed!";
+            }
+            else
+            {
+                TempData["ToastError"] = "Error confirming email.";
+            }
+
+            return RedirectToAction("Index", "Home");
+        }
+
+
     }
 }

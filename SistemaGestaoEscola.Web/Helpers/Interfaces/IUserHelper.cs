@@ -33,5 +33,13 @@ namespace SistemaGestaoEscola.Web.Helpers.Interfaces
         Task<IList<string>> GetRolesAsync(User user);
 
         Task<IdentityResult> ResetPasswordAsync(User user, string token, string password);
+
+        Task<IEnumerable<User>> GetAllUsersAsync();
+
+        Task<User> GetUserByIdAsync(string userId);
+
+        Task<IdentityResult> DeleteUserAsync(User user);
+
+        Task<IdentityResult> RemoveFromRoleAsync(User user, string role);
     }
 }
