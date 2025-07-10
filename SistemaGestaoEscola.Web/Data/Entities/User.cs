@@ -15,5 +15,10 @@ namespace SistemaGestaoEscola.Web.Data.Entities
         public string FullName => $"{FirstName} {LastName}";
 
         public string? ProfilePicturePath { get; set; }
+
+        public string DisplayProfilePicturePath =>
+            string.IsNullOrEmpty(ProfilePicturePath)
+            ? "/images/defaultProfilePicture/default.jpg"
+            : ProfilePicturePath;
     }
 }

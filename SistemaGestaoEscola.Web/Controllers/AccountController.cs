@@ -35,19 +35,19 @@ namespace SistemaGestaoEscola.Web.Controllers
                 
                 if (result.Succeeded) 
                 {
-                    TempData["ToastSuccess"] = "Login feito com sucesso.";
+                    TempData["ToastSuccess"] = "Welcome!";
                     return RedirectToAction("Index", "Home");
                 }                
             }
 
-            TempData["ToastError"] = "Erro ao efetuar o login.";
+            TempData["ToastError"] = "Login error.";
             return View(model);
         }
         public async Task<IActionResult> Logout()
         {
             await _userHelper.LogOutAsync();
 
-            TempData["ToastSuccess"] = "Logout feito com sucesso.";
+            TempData["ToastSuccess"] = "Logged out!";
             return RedirectToAction("Index", "Home");
         }
 
@@ -61,14 +61,14 @@ namespace SistemaGestaoEscola.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
-                TempData["ToastError"] = "Erro ao redefinar a palavra passe.";
+                TempData["ToastError"] = "There was a problem.";
                 return View(model);
             }
 
             var user = await _userHelper.GetUserByEmailAsync(model.Email);
             if (user == null)
             {
-                TempData["ToastError"] = "Email inválido.";
+                TempData["ToastError"] = "Invalid email.";
                 return View(model);
             }
 
@@ -85,11 +85,11 @@ namespace SistemaGestaoEscola.Web.Controllers
 
             if (response.IsSuccess)
             {
-                TempData["ToastSuccess"] = "Email para mudar a palavra passe foi enviado.";
+                TempData["ToastSuccess"] = "Password reset insctructions sent to email.";
                 return RedirectToAction("Index","Home");
             }
 
-            TempData["ToastError"]= "Erro ao redefinir palavra passe.";
+            TempData["ToastError"]= "Error defining new password.";
 
             return View();
         }
@@ -99,7 +99,7 @@ namespace SistemaGestaoEscola.Web.Controllers
         {
             if (string.IsNullOrEmpty(token) || string.IsNullOrEmpty(email))
             {
-                TempData["ToastError"] = "Problemas no token e email";
+                TempData["ToastError"] = "Problems with token and email.";
             }
 
             var model = new ResetPasswordViewModel
@@ -116,7 +116,7 @@ namespace SistemaGestaoEscola.Web.Controllers
         {
             if (!ModelState.IsValid) 
             {
-                TempData["ToastError"] = "Erro com o ViewModel";
+                TempData["ToastError"] = "There was an error.";
             }
 
             var user = await _userHelper.GetUserByEmailAsync(model.UserName);
@@ -126,21 +126,77 @@ namespace SistemaGestaoEscola.Web.Controllers
 
                 if (result.Succeeded)
                 {
-                    TempData["ToastSuccess"] = "Palavra passe mudada com sucesso!";
+                    TempData["ToastSuccess"] = "Password changed successfully.";
                     return View();
                 }
 
-                TempData["ToastError"] = "Erro ao mudar a palavra passe.";
+                TempData["ToastError"] = "Error changing the password.";
                 return View(model);
             }
 
-            TempData["ToastError"] = "Usuário não encontrado.";
+            TempData["ToastError"] = "User not found.";
             return View(model);
         }
 
         public async Task<IActionResult> EditProfile()
         {
-            return View();
+            var user = await _userHelper.GetUserByEmailAsync(User.Identity.Name);
+
+            var model = new EditProfileViewModel
+            {
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                ExistingPicturePath = user.DisplayProfilePicturePath
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditProfile(EditProfileViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                TempData["ToastError"] = "There was an error.";
+                return View(model); 
+            }
+
+            var user = await _userHelper.GetUserByEmailAsync(User.Identity.Name);
+
+            user.FirstName = model.FirstName;
+            user.LastName = model.LastName;
+
+            if (model.ProfilePicture != null && model.ProfilePicture.Length > 0)
+            {
+                string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/profilePictures");
+
+                Directory.CreateDirectory(uploadsFolder); //Makes sure the path exists
+
+                if (!string.IsNullOrEmpty(user.ProfilePicturePath) && !user.ProfilePicturePath.Contains("/images/defaultProfilePicture/")) //Deletes the old profile picture
+                {
+                    string oldFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", user.ProfilePicturePath.TrimStart('/'));
+
+                    if (System.IO.File.Exists(oldFilePath))
+                    {
+                        System.IO.File.Delete(oldFilePath);
+                    }
+                }
+
+                string uniqueFileName = $"{Guid.NewGuid()}_{model.ProfilePicture.FileName}";
+                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await model.ProfilePicture.CopyToAsync(stream);
+                }
+
+                user.ProfilePicturePath = $"/images/profilePictures/{uniqueFileName}";
+            }
+
+            await _userHelper.UpdateUserAsync(user);
+
+            TempData["ToastSuccess"] = "Profile updated successfully";
+            return RedirectToAction("EditProfile");
         }
 
     }

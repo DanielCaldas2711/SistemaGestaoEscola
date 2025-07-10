@@ -1,0 +1,35 @@
+﻿@model EditProfileViewModel
+
+@{
+    ViewData["Title"] = "Editar Perfil";
+}
+
+<h2>Editar Perfil</h2>
+
+<form asp-action="EditProfile" method="post" enctype="multipart/form-data">
+    <div class="form-group">
+        <label asp-for="FirstName"></label>
+        <input asp-for="FirstName" class="form-control" />
+        <span asp-validation-for="FirstName" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="LastName"></label>
+        <input asp-for="LastName" class="form-control" />
+        <span asp-validation-for="LastName" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        @if (!string.IsNullOrEmpty(Model.ExistingPicturePath))
+        {
+            <img src="@Model.ExistingPicturePath" alt="Foto atual" width="100" class="mb-2 rounded" />
+        }
+        <label asp-for="ProfilePicture"></label>
+        <input asp-for="ProfilePicture" type="file" class="form-control" accept="image/*" />
+    </div>
+    <button type="submit" class="btn btn-primary mt-3">Salvar Alterações</button>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

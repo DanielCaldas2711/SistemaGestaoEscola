@@ -1,17 +1,6 @@
 ﻿@using SistemaGestaoEscola.Web.Data.Entities
 @using SistemaGestaoEscola.Web.Helpers.Interfaces
 @inject IUserHelper UserHelper
-@{
-    string userRole = "";
-    var userEmail = User?.Identity?.Name;
-
-    if (!string.IsNullOrEmpty(userEmail))
-    {
-        var user = await UserHelper.GetUserByEmailAsync(userEmail);
-        var roles = await UserHelper.GetRolesAsync(user);
-        userRole = roles.FirstOrDefault();
-    }
-}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -23,7 +12,7 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/SistemaGestaoEscola.Web.styles.css" asp-append-version="true" />
 </head>
-<body>    
+<body>
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
@@ -42,17 +31,19 @@
                         </li>
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
-                        @if (this.User.Identity.IsAuthenticated)
+                        @if (User.Identity.IsAuthenticated)
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="" asp-action="">@userRole</a>
+                            <li class="nav-item d-flex align-items-center me-2">
+                                @await Component.InvokeAsync("UserSummary")
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="ChangePassword">Change Password</a>
                             </li>
                             <li class="nav-item">
-                                @* <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Logout">Logout</a> *@
-                                <a href="#" class="nav-link text-dark" onclick="confirmLogout(event)">Logout</a> 
+                                <a class="nav-link text-dark" asp-controller="Account" asp-action="EditProfile">Edit Profile</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link text-dark" onclick="confirmLogout(event)">Logout</a>
                             </li>
                         }
                         else
@@ -66,8 +57,10 @@
             </div>
         </nav>
     </header>
+
     @await Html.PartialAsync("_Toast")
     @await Html.PartialAsync("_ConfirmPopup")
+
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
@@ -79,15 +72,15 @@
             &copy; @DateTime.Now.Year - SistemaGestaoEscola.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 
     <script>
-        function confirmLogout(event) { //Script para o confirm button do logout
+        function confirmLogout(event) {
             event.preventDefault();
-
             showConfirmPopup({
                 title: 'Terminar sessão',
                 message: 'Queres terminar a sessão?',
