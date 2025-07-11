@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using SistemaGestaoEscola.Web.Data;
 using SistemaGestaoEscola.Web.Data.Entities;
+using SistemaGestaoEscola.Web.Data.Repositories;
+using SistemaGestaoEscola.Web.Data.Repositories.Interfaces;
 using SistemaGestaoEscola.Web.Helpers;
 using SistemaGestaoEscola.Web.Helpers.Interfaces;
 using SistemaGestaoEscola.Web.Models;
@@ -87,6 +89,8 @@ namespace SistemaGestaoEscola.Web
             #region Services
 
             //Add Repositories
+            builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
 
             //Add Services
             builder.Services.AddTransient<SeedDb>();

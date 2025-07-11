@@ -1,6 +1,6 @@
 ﻿namespace SistemaGestaoEscola.Web.Data.Repositories.Interfaces
 {
-    interface IGenericRepository<T> where T : class
+    public interface IGenericRepository<T> where T : class
     {
         IQueryable<T> GetAll();
 

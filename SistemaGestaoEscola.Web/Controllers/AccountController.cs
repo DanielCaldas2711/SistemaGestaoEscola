@@ -158,7 +158,7 @@ namespace SistemaGestaoEscola.Web.Controllers
             if (!ModelState.IsValid)
             {
                 TempData["ToastError"] = "There was an error.";
-                return View(model); 
+                return View(model);
             }
 
             var user = await _userHelper.GetUserByEmailAsync(User.Identity.Name);
@@ -168,14 +168,26 @@ namespace SistemaGestaoEscola.Web.Controllers
 
             if (model.ProfilePicture != null && model.ProfilePicture.Length > 0)
             {
+                if (model.ProfilePicture.Length > 2 * 1024 * 1024) //Checks the size of the file
+                {
+                    TempData["ToastError"] = "The profile picture must be 2MB or less.";
+                    return View(model);
+                }
+
+                var allowedContentTypes = new[] { "image/jpeg", "image/png", "image/webp" };
+                if (!allowedContentTypes.Contains(model.ProfilePicture.ContentType)) //Makes sure that the file is a image
+                {
+                    TempData["ToastError"] = "Only JPEG, PNG or WEBP images are allowed.";
+                    return View(model);
+                }
+
                 string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/profilePictures");
+                Directory.CreateDirectory(uploadsFolder); // Makes sure the directory exists
 
-                Directory.CreateDirectory(uploadsFolder); //Makes sure the path exists
-
-                if (!string.IsNullOrEmpty(user.ProfilePicturePath) && !user.ProfilePicturePath.Contains("/images/defaultProfilePicture/")) //Deletes the old profile picture
+                if (!string.IsNullOrEmpty(user.ProfilePicturePath) &&
+                    !user.ProfilePicturePath.Contains("/images/defaultProfilePicture/"))
                 {
                     string oldFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", user.ProfilePicturePath.TrimStart('/'));
-
                     if (System.IO.File.Exists(oldFilePath))
                     {
                         System.IO.File.Delete(oldFilePath);
@@ -185,7 +197,7 @@ namespace SistemaGestaoEscola.Web.Controllers
                 string uniqueFileName = $"{Guid.NewGuid()}_{model.ProfilePicture.FileName}";
                 string filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                using (var stream = new FileStream(filePath, FileMode.Create)) //TODO Upload images to blob
                 {
                     await model.ProfilePicture.CopyToAsync(stream);
                 }
@@ -198,6 +210,7 @@ namespace SistemaGestaoEscola.Web.Controllers
             TempData["ToastSuccess"] = "Profile updated successfully";
             return RedirectToAction("EditProfile");
         }
+
 
         [HttpGet]
         public async Task<IActionResult> ConfirmEmail(string email, string token)

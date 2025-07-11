@@ -1,14 +1,14 @@
 ﻿@if (TempData["ToastSuccess"] != null || TempData["ToastError"] != null)
 {
-    <div class="toast-container position-fixed end-0 p-4" style="z-index: 1060;">
+    <div class="toast-container position-fixed top-0 end-0 p-4" id="toastContainer" style="z-index: 1060;">
         @if (TempData["ToastSuccess"] != null)
         {
             <div id="toastSuccess" class="custom-toast custom-toast-success shadow">
-                <div class="d-flex align-items-center">                    
+                <div class="d-flex align-items-center">
                     <div class="toast-content">
-                       @TempData["ToastSuccess"]
+                        @TempData["ToastSuccess"]
                     </div>
-                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="toast" aria-label="Fechar"></button>
+                    <button type="button" class="btn-close ms-auto" aria-label="Fechar" onclick="this.closest('.custom-toast').remove();"></button>
                 </div>
             </div>
         }
@@ -16,11 +16,11 @@
         @if (TempData["ToastError"] != null)
         {
             <div id="toastError" class="custom-toast custom-toast-error shadow">
-                <div class="d-flex align-items-center">                    
+                <div class="d-flex align-items-center">
                     <div class="toast-content">
                         @TempData["ToastError"]
                     </div>
-                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="toast" aria-label="Fechar"></button>
+                    <button type="button" class="btn-close ms-auto" aria-label="Fechar" onclick="this.closest('.custom-toast').remove();"></button>
                 </div>
             </div>
         }
@@ -46,23 +46,23 @@
             background-color: #dc3545; /* Bootstrap red */
         }
 
-        .toast-icon {
-            font-size: 1.5rem;
-        }
-
         .toast-content {
             flex: 1;
         }
 
         @@keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(100%);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+            from
+
+        {
+            opacity: 0;
+            transform: translateX(100%);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
         }
     </style>
 
@@ -73,6 +73,9 @@
                 el.style.opacity = 0;
                 setTimeout(() => el.remove(), 400);
             };
+
+            const toastContainer = document.getElementById("toastContainer");
+            const navbar = document.querySelector(".navbar");
 
             if (navbar && toastContainer) {
                 const navbarHeight = navbar.offsetHeight;

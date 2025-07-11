@@ -1,0 +1,86 @@
+﻿@model SistemaGestaoEscola.Web.Models.SubjectListViewModel
+
+@{
+    ViewData["Title"] = "Subjects";
+}
+
+<h2 class="d-flex justify-content-between align-items-center">
+    Subjects
+    <a asp-action="Create" class="btn btn-success">New Subject</a>
+</h2>
+
+<form method="get" class="row mb-3">
+    <div class="col-md-6">
+        <input type="text" name="searchTerm" value="@Model.SearchTerm" class="form-control" placeholder="Search by name..." />
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary">Search</button>
+    </div>
+</form>
+
+<table class="table table-bordered table-striped">
+    <thead class="table-light">
+        <tr>
+            <th>Code</th>
+            <th>Name</th>
+            <th>Hours</th>
+            <th>Absence</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var subject in Model.Subjects)
+        {
+            <tr>
+                <td>@subject.Code</td>
+                <td>@subject.Name</td>
+                <td>@subject.Hours</td>
+                <td>@subject.Absence</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@subject.Id" class="btn btn-warning btn-sm">Edit</a>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete(@subject.Id, '@subject.Name')">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (Model.TotalPages > 1)
+{
+    <nav>
+        <ul class="pagination">
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                    <a class="page-link"
+                       asp-route-page="@i"
+                       asp-route-searchTerm="@Model.SearchTerm">
+                        @i
+                    </a>
+                </li>
+            }
+        </ul>
+    </nav>
+}
+
+<form id="deleteForm" method="post" asp-action="DeleteConfirmed">
+    <input type="hidden" name="id" id="deleteSubjectId" />
+    @Html.AntiForgeryToken()
+</form>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+
+    <script>
+        function confirmDelete(id, name) {
+            showConfirmPopup({
+                title: "Delete Subject",
+                message: `Do you really want to delete the subject ${name}?`,
+                onConfirm: () => {
+                    document.getElementById('deleteSubjectId').value = id;
+                    document.getElementById('deleteForm').submit();
+                }
+            });
+        }
+    </script>
+}
