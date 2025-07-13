@@ -1,0 +1,98 @@
+﻿@using SistemaGestaoEscola.Web.Data.Enums
+@model SistemaGestaoEscola.Web.Data.Entities.Course
+
+@{
+    ViewData["Title"] = "Create Course";
+    var shifts = Enum.GetNames(typeof(Shift)).ToList();
+}
+
+<h2>Create Course</h2>
+
+<form asp-action="Create" method="post" class="mt-4">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="form-group mb-3">
+        <label asp-for="Name" class="form-label">Course Name</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="Area" class="form-label">Area</label>
+        <input asp-for="Area" class="form-control" />
+        <span asp-validation-for="Area" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="Shift" class="form-label">Shift</label>
+        <select asp-for="Shift" class="form-select" id="Shift">
+            <option value="">Select...</option>
+            @foreach (var shift in shifts)
+            {
+                <option value="@shift">@shift</option>
+            }
+        </select>
+        <span asp-validation-for="Shift" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="StartingDate" class="form-label">Start Date</label>
+        <input asp-for="StartingDate" class="form-control" type="date" />
+        <span asp-validation-for="StartingDate" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="EndingDate" class="form-label">End Date</label>
+        <input asp-for="EndingDate" class="form-control" type="date" />
+        <span asp-validation-for="EndingDate" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="TotalTime" class="form-label">Total Time (hours)</label>
+        <input asp-for="TotalTime" class="form-control" readonly />
+        <span asp-validation-for="TotalTime" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mt-4">
+        <button type="submit" class="btn btn-success">Create</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        function calculateTotalTime(start, end, shift) {
+            const startDate = new Date(start);
+            const endDate = new Date(end);
+            if (!start || !end || startDate > endDate) return "";
+
+            let totalHours = 0;
+            const dailyHours = shift === "Diurno" ? 7 : shift === "Noturno" ? 4 : 0;
+
+            for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+                const day = d.getDay();
+                if (day !== 0 && day !== 6) { // Monday to Friday
+                    totalHours += dailyHours;
+                }
+            }
+
+            return totalHours;
+        }
+
+        function updateTotalTime() {
+            const start = document.getElementById("StartingDate").value;
+            const end = document.getElementById("EndingDate").value;
+            const shift = document.getElementById("Shift").value;
+            const result = calculateTotalTime(start, end, shift);
+            document.getElementById("TotalTime").value = result;
+        }
+
+        document.getElementById("StartingDate").addEventListener("change", updateTotalTime);
+        document.getElementById("EndingDate").addEventListener("change", updateTotalTime);
+        document.getElementById("Shift").addEventListener("change", updateTotalTime);
+    </script>
+}
