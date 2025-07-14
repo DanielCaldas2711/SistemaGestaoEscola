@@ -1,7 +1,9 @@
-﻿@model SistemaGestaoEscola.Web.Data.Entities.Course
+﻿@using SistemaGestaoEscola.Web.Data.Enums
+@model SistemaGestaoEscola.Web.Data.Entities.Course
 
 @{
     ViewData["Title"] = "Create Course";
+    var courseTypes = Enum.GetNames(typeof(CourseType));
 }
 
 <h2>Create Course</h2>
@@ -18,8 +20,12 @@
 
     <div class="form-group mb-3">
         <label asp-for="Type" class="form-label">Type</label>
-        <select asp-for="Type" class="form-select" asp-items="Html.GetEnumSelectList<SistemaGestaoEscola.Web.Data.Enums.CourseType>()">
+        <select asp-for="Type" class="form-select">
             <option value="">Select...</option>
+            @foreach (var type in courseTypes)
+            {
+                <option value="@type">@type</option>
+            }
         </select>
         <span asp-validation-for="Type" class="text-danger"></span>
     </div>

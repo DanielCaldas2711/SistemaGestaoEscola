@@ -1,12 +1,13 @@
-﻿@model SistemaGestaoEscola.Web.Models.CourseListViewModel
+﻿@model CourseListViewModel
 
 <table class="table table-bordered table-striped">
     <thead class="table-light">
         <tr>
-            <th>Tipo</th>
             <th>Nome</th>
+            <th>Tipo</th>
             <th>Duração</th>
-            <th style="width: 150px;">Ações</th>
+            <th>Status</th>
+            <th style="width: 160px;">Ações</th>
         </tr>
     </thead>
     <tbody>
@@ -15,12 +16,23 @@
             foreach (var course in Model.Courses)
             {
                 <tr>
-                    <td>@course.Type</td>
                     <td>@course.Name</td>
+                    <td>@course.Type</td>
                     <td>@course.Duration horas</td>
+                    <td>
+                        @if (course.IsActive)
+                        {
+                            <span class="badge bg-success">Ativo</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Inativo</span>
+                        }
+                    </td>
                     <td>
                         <a asp-action="Edit" asp-route-id="@course.Id" class="btn btn-sm btn-warning">Editar</a>
                         <button class="btn btn-sm btn-danger"
+                                type="button"
                                 onclick="confirmDelete('@course.Name', '@Url.Action("DeleteConfirmed", "Courses", new { id = course.Id })')">
                             Excluir
                         </button>
@@ -31,7 +43,7 @@
         else
         {
             <tr>
-                <td colspan="4" class="text-center text-muted">Nenhum curso encontrado.</td>
+                <td colspan="5" class="text-center">Nenhum curso encontrado.</td>
             </tr>
         }
     </tbody>
@@ -44,7 +56,7 @@
             @for (int i = 1; i <= Model.TotalPages; i++)
             {
                 <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
-                    <a href="javascript:void(0);" class="page-link" onclick="loadCourses(@i)">
+                    <a class="page-link" href="javascript:void(0);" onclick="loadCourses(@i)">
                         @i
                     </a>
                 </li>

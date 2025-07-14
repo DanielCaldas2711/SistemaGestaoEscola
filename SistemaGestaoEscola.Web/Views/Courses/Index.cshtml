@@ -1,4 +1,5 @@
-﻿@{
+﻿@model CourseListViewModel
+@{
     ViewData["Title"] = "Cursos";
 }
 
@@ -8,21 +9,40 @@
 </h2>
 
 <form id="searchForm" class="row mb-3" onsubmit="return searchCourses();">
-    <div class="col-md-6">
+    <div class="col-md-3">
         <input type="text" id="searchTerm" name="searchTerm" class="form-control" placeholder="Buscar por nome..." />
     </div>
+
+    <div class="col-md-3">
+        <select id="typeFilter" class="form-select">
+            <option value="">Todos os Tipos</option>
+            <option value="CET">CET</option>
+            <option value="EFA">EFA</option>
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <select id="isActiveFilter" class="form-select">
+            <option value="">Todos os Status</option>
+            <option value="true">Ativo</option>
+            <option value="false">Inativo</option>
+        </select>
+    </div>
+
     <div class="col-md-2">
         <button type="submit" class="btn btn-primary">Buscar</button>
     </div>
 </form>
 
 <div id="coursesTable">
-    <partial name="_CourseTablePartial" model="new SistemaGestaoEscola.Web.Models.CourseListViewModel()" />
+    <partial name="_CourseTablePartial" model="new CourseListViewModel()" />
 </div>
 
 <form id="deleteForm" method="post" class="d-none">
     @Html.AntiForgeryToken()
 </form>
+
+@await Html.PartialAsync("_ConfirmPopup")
 
 @section Scripts {
     <script>
@@ -37,16 +57,23 @@
 
         function loadCourses(page) {
             const searchTerm = document.getElementById("searchTerm").value;
+            const typeFilter = document.getElementById("typeFilter").value;
+            const isActiveFilter = document.getElementById("isActiveFilter").value;
 
-            fetch(`/Courses/LoadCourses?page=${page}&searchTerm=${encodeURIComponent(searchTerm)}`, {
+            const params = new URLSearchParams({
+                page,
+                searchTerm,
+                typeFilter,
+                isActiveFilter
+            });
+
+            fetch(`/Courses/LoadCourses?${params.toString()}`, {
                 headers: {
                     "X-Requested-With": "XMLHttpRequest"
                 }
             })
                 .then(response => {
-                    if (!response.ok) {
-                        throw new Error("Erro ao carregar os cursos.");
-                    }
+                    if (!response.ok) throw new Error("Erro ao carregar os cursos.");
                     return response.text();
                 })
                 .then(html => {
@@ -60,9 +87,9 @@
         function confirmDelete(courseName, deleteUrl) {
             window.showConfirmPopup({
                 title: 'Excluir Curso',
-                message: `Tem certeza que deseja excluir ${courseName}?`,
+                message: `Tem certeza que deseja excluir o curso "${courseName}"?`,
                 onConfirm: () => {
-                    const form = document.getElementById("deleteForm");
+                    const form = document.getElementById('deleteForm');
                     form.action = deleteUrl;
                     form.submit();
                 }

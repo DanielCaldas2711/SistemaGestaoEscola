@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using SistemaGestaoEscola.Web.Data.Entities;
 using SistemaGestaoEscola.Web.Data.Repositories.Interfaces;
-using SistemaGestaoEscola.Web.Models;
 
 namespace SistemaGestaoEscola.Web.Controllers
 {
@@ -45,6 +44,8 @@ namespace SistemaGestaoEscola.Web.Controllers
                 TempData["ToastError"] = $"A course named \"{model.Name}\" already exists.";
                 return View(model);
             }
+
+            model.IsActive = true; // When a course is created, it is always active
 
             try
             {
@@ -128,6 +129,7 @@ namespace SistemaGestaoEscola.Web.Controllers
                 existing.Name = model.Name;
                 existing.Type = model.Type;
                 existing.Duration = model.Duration;
+                existing.IsActive = model.IsActive;
 
                 await _courseRepository.UpdateAsync(existing);
                 TempData["ToastSuccess"] = "Course updated successfully!";
@@ -142,16 +144,25 @@ namespace SistemaGestaoEscola.Web.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> LoadCourses(string? searchTerm, int page = 1)
+        public async Task<IActionResult> LoadCourses(string? searchTerm, string? typeFilter, bool? isActiveFilter, int page = 1)
         {
             const int pageSize = 10;
-
             var query = _courseRepository.GetAll();
 
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
                 var term = searchTerm.Trim().ToLower();
                 query = query.Where(c => c.Name.ToLower().StartsWith(term));
+            }
+
+            if (!string.IsNullOrWhiteSpace(typeFilter))
+            {
+                query = query.Where(c => c.Type == typeFilter);
+            }
+
+            if (isActiveFilter.HasValue)
+            {
+                query = query.Where(c => c.IsActive == isActiveFilter.Value);
             }
 
             var totalCourses = await query.CountAsync();
@@ -166,11 +177,14 @@ namespace SistemaGestaoEscola.Web.Controllers
             {
                 Courses = pagedCourses,
                 SearchTerm = searchTerm,
+                TypeFilter = typeFilter,
+                IsActiveFilter = isActiveFilter,
                 CurrentPage = page,
                 TotalPages = (int)Math.Ceiling(totalCourses / (double)pageSize)
             };
 
             return PartialView("_CourseTablePartial", model);
         }
+
     }
 }

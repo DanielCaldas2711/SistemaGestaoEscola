@@ -9,7 +9,7 @@ namespace SistemaGestaoEscola.Web.Data.Entities
         public int Id { get; set; }
 
         [Required]
-        public CourseType Type { get; set; }
+        public string Type { get; set; }
 
         [Required]
         [MaxLength(150)]
@@ -18,6 +18,7 @@ namespace SistemaGestaoEscola.Web.Data.Entities
         [Required]
         public int Duration { get; set; }
 
+        [Display(Name = "Ativo")]
         public bool IsActive { get; set; }
     }
 }
