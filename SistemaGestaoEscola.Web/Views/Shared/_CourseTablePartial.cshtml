@@ -1,0 +1,54 @@
+﻿@model SistemaGestaoEscola.Web.Models.CourseListViewModel
+
+<table class="table table-bordered table-striped">
+    <thead class="table-light">
+        <tr>
+            <th>Tipo</th>
+            <th>Nome</th>
+            <th>Duração</th>
+            <th style="width: 150px;">Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Courses.Any())
+        {
+            foreach (var course in Model.Courses)
+            {
+                <tr>
+                    <td>@course.Type</td>
+                    <td>@course.Name</td>
+                    <td>@course.Duration horas</td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@course.Id" class="btn btn-sm btn-warning">Editar</a>
+                        <button class="btn btn-sm btn-danger"
+                                onclick="confirmDelete('@course.Name', '@Url.Action("DeleteConfirmed", "Courses", new { id = course.Id })')">
+                            Excluir
+                        </button>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="4" class="text-center text-muted">Nenhum curso encontrado.</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (Model.TotalPages > 1)
+{
+    <nav>
+        <ul class="pagination justify-content-center">
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                    <a href="javascript:void(0);" class="page-link" onclick="loadCourses(@i)">
+                        @i
+                    </a>
+                </li>
+            }
+        </ul>
+    </nav>
+}

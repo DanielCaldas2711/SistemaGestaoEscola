@@ -1,0 +1,72 @@
+﻿@{
+    ViewData["Title"] = "Cursos";
+}
+
+<h2 class="d-flex justify-content-between align-items-center">
+    Cursos
+    <a asp-action="Create" class="btn btn-success">Novo Curso</a>
+</h2>
+
+<form id="searchForm" class="row mb-3" onsubmit="return searchCourses();">
+    <div class="col-md-6">
+        <input type="text" id="searchTerm" name="searchTerm" class="form-control" placeholder="Buscar por nome..." />
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary">Buscar</button>
+    </div>
+</form>
+
+<div id="coursesTable">
+    <partial name="_CourseTablePartial" model="new SistemaGestaoEscola.Web.Models.CourseListViewModel()" />
+</div>
+
+<form id="deleteForm" method="post" class="d-none">
+    @Html.AntiForgeryToken()
+</form>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            loadCourses(1);
+        });
+
+        function searchCourses() {
+            loadCourses(1);
+            return false;
+        }
+
+        function loadCourses(page) {
+            const searchTerm = document.getElementById("searchTerm").value;
+
+            fetch(`/Courses/LoadCourses?page=${page}&searchTerm=${encodeURIComponent(searchTerm)}`, {
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Erro ao carregar os cursos.");
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    document.getElementById("coursesTable").innerHTML = html;
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        }
+
+        function confirmDelete(courseName, deleteUrl) {
+            window.showConfirmPopup({
+                title: 'Excluir Curso',
+                message: `Tem certeza que deseja excluir ${courseName}?`,
+                onConfirm: () => {
+                    const form = document.getElementById("deleteForm");
+                    form.action = deleteUrl;
+                    form.submit();
+                }
+            });
+        }
+    </script>
+}
