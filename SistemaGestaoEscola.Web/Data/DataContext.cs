@@ -11,7 +11,6 @@ namespace SistemaGestaoEscola.Web.Data
         }
 
         public DbSet<Subject> Subjects { get; set; }
-        public DbSet<Course> Courses { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -19,10 +18,6 @@ namespace SistemaGestaoEscola.Web.Data
 
             modelBuilder.Entity<Subject>()
                 .HasIndex(s => s.Code)
-                .IsUnique();
-            
-            modelBuilder.Entity<Course>()
-                .HasIndex(c => c.Name)
                 .IsUnique();
         }
     }

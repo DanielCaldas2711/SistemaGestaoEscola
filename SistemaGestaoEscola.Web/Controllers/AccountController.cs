@@ -51,7 +51,7 @@ namespace SistemaGestaoEscola.Web.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        public IActionResult ChangePassword()
+        public async Task<IActionResult> ChangePassword()
         {
             return View();
         }
@@ -95,7 +95,7 @@ namespace SistemaGestaoEscola.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult PasswordReset(string token, string email)
+        public async Task<IActionResult> PasswordReset(string token, string email)
         {
             if (string.IsNullOrEmpty(token) || string.IsNullOrEmpty(email))
             {

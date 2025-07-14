@@ -91,7 +91,6 @@ namespace SistemaGestaoEscola.Web
             //Add Repositories
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
-            builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 
             //Add Services
             builder.Services.AddTransient<SeedDb>();
