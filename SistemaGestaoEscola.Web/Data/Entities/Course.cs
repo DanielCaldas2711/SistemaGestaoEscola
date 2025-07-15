@@ -20,5 +20,7 @@ namespace SistemaGestaoEscola.Web.Data.Entities
 
         [Display(Name = "Ativo")]
         public bool IsActive { get; set; }
+
+        public ICollection<CourseDisciplines> CourseDisciplines { get; set; } = new List<CourseDisciplines>();
     }
 }

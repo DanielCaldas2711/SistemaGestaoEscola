@@ -125,7 +125,6 @@ namespace SistemaGestaoEscola.Web.Controllers
             var emailBody = $@"
             <h3>Welcome to ETEMB</h3>
             <p>Hello {user.FirstName},</p>
-            <p>Your first access password is: {model.Password}</p>
             <p>Your account was created  successfully. To activate it, click in the link down bellow:</p>
             <p><a href='{confirmationLink}'>Confirm Account</a></p>";
 

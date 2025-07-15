@@ -1,0 +1,96 @@
+﻿@model SistemaGestaoEscola.Web.Models.CourseSubjectsViewModel
+
+@{
+    ViewData["Title"] = "Gerenciar Disciplinas";
+}
+
+<h2>Gerenciar Disciplinas para: <strong>@Model.CourseName</strong></h2>
+
+<h4>Duração do curso: <strong>@Model.CourseDuration</strong> horas</h4>
+
+<input type="hidden" id="courseId" value="@Model.CourseId" />
+
+<div class="row mb-3">
+    <div class="col-md-4">
+        <input type="text" id="searchTerm" class="form-control" placeholder="Buscar..." />
+    </div>
+    <div class="col-md-3">
+        <select id="searchBy" class="form-select">
+            <option value="name">Nome</option>
+            <option value="code">Código</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button class="btn btn-primary" onclick="loadSubjects()">Buscar</button>
+    </div>
+</div>
+
+<div id="subjectsListContainer">
+</div>
+
+<form id="antiForgeryForm" method="post" class="d-none">
+    @Html.AntiForgeryToken()
+</form>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            loadSubjects();
+        });
+
+        function loadSubjects() {
+            const courseId = document.getElementById("courseId").value;
+            const searchTerm = document.getElementById("searchTerm").value;
+            const searchBy = document.getElementById("searchBy").value;
+
+            fetch(`/CourseDisciplines/LoadSubjects?courseId=${courseId}&searchTerm=${encodeURIComponent(searchTerm)}&filterBy=${searchBy}`, {
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Erro ao carregar disciplinas.");
+                }
+                return response.text();
+            })
+            .then(html => {
+                document.getElementById("subjectsListContainer").innerHTML = html;
+            })
+            .catch(error => {
+                console.error(error);
+                alert("Erro ao buscar disciplinas.");
+            });
+        }
+
+        function toggleDiscipline(subjectId, assign) {
+            const courseId = document.getElementById("courseId").value;
+
+            fetch(`/CourseDisciplines/ToggleSubject`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "RequestVerificationToken": document.querySelector('input[name="__RequestVerificationToken"]').value
+                },
+                body: JSON.stringify({
+                    courseId: parseInt(courseId),
+                    subjectId: parseInt(subjectId),
+                    assign: assign
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Erro ao atualizar associação.");
+                }
+                return response.text();
+            })
+            .then(html => {
+                document.getElementById("subjectsListContainer").innerHTML = html;
+            })
+            .catch(error => {
+                console.error(error);
+                alert("Erro ao processar solicitação.");
+            });
+        }
+    </script>
+}

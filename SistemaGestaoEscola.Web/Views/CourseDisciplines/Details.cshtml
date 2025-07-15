@@ -1,0 +1,67 @@
+﻿@model SistemaGestaoEscola.Web.Models.CourseDetailsViewModel
+
+@{
+    ViewData["Title"] = "Detalhes do Curso";
+}
+
+<h2 class="mb-4">Detalhes do Curso</h2>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">Nome:</dt>
+            <dd class="col-sm-9">@Model.Name</dd>
+
+            <dt class="col-sm-3">Tipo:</dt>
+            <dd class="col-sm-9">@Model.Type</dd>
+
+            <dt class="col-sm-3">Duração Total:</dt>
+            <dd class="col-sm-9">@Model.Duration horas</dd>
+
+            <dt class="col-sm-3">Ativo:</dt>
+            <dd class="col-sm-9">
+                @if (Model.IsActive)
+                {
+                    <span class="badge bg-success">Sim</span>
+                }
+                else
+                {
+                    <span class="badge bg-danger">Não</span>
+                }
+            </dd>
+        </dl>
+    </div>
+</div>
+
+<h4>Disciplinas Associadas</h4>
+
+@if (!Model.AssignedSubjects.Any())
+{
+    <div class="alert alert-info">Nenhuma disciplina associada ao curso.</div>
+}
+else
+{
+    <table class="table table-bordered table-striped mt-3">
+        <thead class="table-light">
+            <tr>
+                <th>Código</th>
+                <th>Nome</th>
+                <th>Carga Horária</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var subject in Model.AssignedSubjects)
+            {
+                <tr>
+                    <td>@subject.Code</td>
+                    <td>@subject.Name</td>
+                    <td>@subject.Hours h</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<div class="mt-4">
+    <a asp-action="Index" class="btn btn-secondary">Voltar</a>
+</div>

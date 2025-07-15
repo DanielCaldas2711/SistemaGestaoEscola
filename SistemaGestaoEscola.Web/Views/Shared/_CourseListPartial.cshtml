@@ -1,0 +1,43 @@
+﻿@model IEnumerable<SistemaGestaoEscola.Web.Data.Entities.Course>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">No courses found.</div>
+}
+else
+{
+    <table class="table table-bordered table-striped">
+        <thead class="table-light">
+            <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Duration</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var course in Model)
+            {
+                <tr>
+                    <td>@course.Name</td>
+                    <td>@course.Type</td>
+                    <td>@course.Duration h</td>
+                    <td>
+                        <a asp-controller="CourseDisciplines"
+                           asp-action="ManageSubjects"
+                           asp-route-courseId="@course.Id"
+                           class="btn btn-sm btn-outline-primary">
+                            Manage Subjects
+                        </a>
+                        <a asp-controller="CourseDisciplines"
+                           asp-action="Details"
+                           asp-route-courseId="@course.Id"
+                           class="btn btn-sm btn-outline-secondary">
+                            Details
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

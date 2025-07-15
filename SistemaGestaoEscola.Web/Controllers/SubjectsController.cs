@@ -76,7 +76,7 @@ namespace SistemaGestaoEscola.Web.Controllers
 
                 return RedirectToAction(nameof(Index));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 TempData["ToastError"] = "Failed to create subject.";
             }

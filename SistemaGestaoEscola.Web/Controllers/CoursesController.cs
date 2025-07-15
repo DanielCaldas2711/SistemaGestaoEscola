@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SistemaGestaoEscola.Web.Data.Entities;
 using SistemaGestaoEscola.Web.Data.Repositories.Interfaces;
@@ -15,12 +16,14 @@ namespace SistemaGestaoEscola.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index()
+        [Authorize(Roles = "Admin")]
+        public IActionResult Index()
         {
             return View();
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
@@ -28,6 +31,7 @@ namespace SistemaGestaoEscola.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create(Course model)
         {
             if (!ModelState.IsValid)
@@ -62,6 +66,7 @@ namespace SistemaGestaoEscola.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var course = await _courseRepository.GetByIdAsync(id);
@@ -85,6 +90,7 @@ namespace SistemaGestaoEscola.Web.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id)
         {
             var course = await _courseRepository.GetByIdAsync(id);
@@ -99,6 +105,7 @@ namespace SistemaGestaoEscola.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(Course model)
         {
             if (!ModelState.IsValid)
@@ -144,6 +151,7 @@ namespace SistemaGestaoEscola.Web.Controllers
 
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> LoadCourses(string? searchTerm, string? typeFilter, bool? isActiveFilter, int page = 1)
         {
             const int pageSize = 10;

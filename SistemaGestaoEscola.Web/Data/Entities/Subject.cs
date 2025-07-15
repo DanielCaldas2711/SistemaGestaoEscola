@@ -20,6 +20,8 @@ namespace SistemaGestaoEscola.Web.Data.Entities
         [Required]
         public int Absence { get; set; }
 
+        public ICollection<CourseDisciplines> CourseDisciplines { get; set; } = new List<CourseDisciplines>();
+
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if (Hours == 25 && Absence != 3)

@@ -1,0 +1,56 @@
+﻿@{
+    ViewData["Title"] = "Associate Subjects to Courses";
+}
+
+<h2 class="d-flex justify-content-between align-items-center">
+    Course-Subject Association
+</h2>
+
+<form id="filterForm" class="row mb-3" onsubmit="return loadCourses();">
+    <div class="col-md-5">
+        <input type="text" id="searchTerm" name="searchTerm" class="form-control" placeholder="Search course name..." />
+    </div>
+    <div class="col-md-3">
+        <select id="typeFilter" name="type" class="form-select">
+            <option value="">All Types</option>
+            <option value="CET">CET</option>
+            <option value="EFA">EFA</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">Search</button>
+    </div>
+</form>
+
+<div id="coursesContainer">
+    <partial name="_CourseListPartial" model="new List<SistemaGestaoEscola.Web.Data.Entities.Course>()" />
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            loadCourses();
+        });
+
+        function loadCourses() {
+            const searchTerm = document.getElementById("searchTerm").value;
+            const type = document.getElementById("typeFilter").value;
+
+            fetch(`/CourseDisciplines/LoadCourses?searchTerm=${encodeURIComponent(searchTerm)}&type=${encodeURIComponent(type)}`, {
+                headers: { "X-Requested-With": "XMLHttpRequest" }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Failed to load courses.");
+                }
+                return response.text();
+            })
+            .then(html => {
+                document.getElementById("coursesContainer").innerHTML = html;
+            })
+            .catch(error => console.error("Error loading courses:", error));
+
+            return false;
+        }
+    </script>
+}

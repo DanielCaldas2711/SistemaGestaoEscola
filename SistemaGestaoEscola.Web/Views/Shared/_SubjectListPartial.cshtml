@@ -1,0 +1,45 @@
+﻿@model List<SistemaGestaoEscola.Web.Models.SubjectAssignmentViewModel>
+<h3>Horas assinaladas no curso: <strong>@ViewBag.AssignedHours</strong></h3>
+@if (!Model.Any())
+{
+    <div class="alert alert-warning">Nenhuma disciplina encontrada.</div>
+}
+else
+{
+    <table class="table table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Nome</th>
+                <th>Código</th>
+                <th>Horas</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var subject in Model)
+            {
+                <tr>
+                    <td>@subject.Name</td>
+                    <td>@subject.Code</td>
+                    <td>@subject.Hours</td>
+                    <td>
+                        @if (subject.IsAssigned)
+                        {
+                            <button class="btn btn-outline-danger btn-sm"
+                                    onclick="toggleDiscipline(@subject.Id, false)">
+                                Remover
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-outline-success btn-sm"
+                                    onclick="toggleDiscipline(@subject.Id, true)">
+                                Adicionar
+                            </button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
