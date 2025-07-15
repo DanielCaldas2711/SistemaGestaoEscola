@@ -233,16 +233,17 @@ namespace SistemaGestaoEscola.Web.Controllers
 
             if (result.Succeeded)
             {
-                TempData["ToastSuccess"] = "Email successfully confirmed!";
+                var recoverToken = await _userHelper.GeneratePasswordResetTokenAsync(user);
+
+                TempData["ToastSuccess"] = "Email confirmed! Please define a new password.";
+
+                return RedirectToAction("PasswordReset", "Account", new { token = recoverToken, email = user.Email });
             }
             else
             {
                 TempData["ToastError"] = "Error confirming email.";
+                return RedirectToAction("Index", "Home");
             }
-
-            return RedirectToAction("Index", "Home");
         }
-
-
     }
 }
