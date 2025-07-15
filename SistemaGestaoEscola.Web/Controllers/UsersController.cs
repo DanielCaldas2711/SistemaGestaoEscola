@@ -32,7 +32,7 @@ namespace SistemaGestaoEscola.Web.Controllers
             {
                 var role = (await _userHelper.GetRolesAsync(user)).FirstOrDefault() ?? "Sem função";
                 if (
-                    (string.IsNullOrWhiteSpace(searchTerm) || user.FullName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) &&
+                    (string.IsNullOrWhiteSpace(searchTerm) || user.FullName.StartsWith(searchTerm, StringComparison.OrdinalIgnoreCase)) &&
                     (string.IsNullOrEmpty(selectedRole) || role == selectedRole)
                 )
                 {
