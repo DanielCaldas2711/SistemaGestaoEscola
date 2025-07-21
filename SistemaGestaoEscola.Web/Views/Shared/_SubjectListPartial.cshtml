@@ -6,6 +6,10 @@
 }
 else
 {
+    @if (TempData["ToastError"] != null)
+    {
+        <div id="error-message" data-error="@TempData["ToastError"]"></div>
+    }
     <table class="table table-hover align-middle">
         <thead class="table-light">
             <tr>

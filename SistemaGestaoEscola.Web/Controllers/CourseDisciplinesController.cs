@@ -127,7 +127,7 @@ namespace SistemaGestaoEscola.Web.Controllers
 
             if (course == null)
             {
-                TempData["ToastError"] = "Curso não encontrado.";
+                TempData["ToastError"] = "Course not found.";
                 return RedirectToAction(nameof(Index));
             }
 
