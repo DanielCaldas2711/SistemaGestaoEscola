@@ -1,0 +1,41 @@
+﻿@model List<StudentAssignmentViewModel>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-warning">Nenhum aluno encontrado.</div>
+}
+else
+{
+    <table class="table table-bordered align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Nome</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var student in Model)
+            {
+                <tr>
+                    <td>@student.FullName</td>
+                    <td>
+                        @if (student.IsAssigned)
+                        {
+                            <button class="btn btn-sm btn-outline-danger"
+                                    onclick="toggleStudent('@student.StudentId', false)">
+                                Remover
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-sm btn-outline-success"
+                                    onclick="toggleStudent('@student.StudentId', true)">
+                                Adicionar
+                            </button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

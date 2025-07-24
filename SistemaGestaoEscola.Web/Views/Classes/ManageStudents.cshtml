@@ -1,0 +1,85 @@
+﻿@model ManageClassStudentsViewModel
+
+@{
+    ViewData["Title"] = "Gerenciar Alunos";
+}
+
+<h2>Gerenciar Alunos da Turma: <strong>@Model.ClassName</strong></h2>
+
+<input type="hidden" id="classId" value="@Model.ClassId" />
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        <input type="text" id="searchStudent" class="form-control" placeholder="Buscar aluno por nome..." />
+    </div>
+    <div class="col-md-2">
+        <button class="btn btn-primary" onclick="loadStudents()">Buscar</button>
+    </div>
+</div>
+
+<div id="studentsListContainer">
+    @await Html.PartialAsync("_StudentListPartial", Model.AvailableStudents)
+</div>
+
+<form id="antiForgeryForm" method="post" class="d-none">
+    @Html.AntiForgeryToken()
+</form>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            loadStudents();
+        });
+
+        function loadStudents() {
+            const classId = document.getElementById("classId").value;
+            const searchTerm = document.getElementById("searchStudent").value;
+
+            fetch(`/Classes/LoadStudents?classId=${classId}&searchTerm=${encodeURIComponent(searchTerm)}`, {
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
+                }
+            })
+            .then(res => {
+                if (!res.ok) throw new Error("Erro ao carregar alunos.");
+                return res.text();
+            })
+            .then(html => {
+                document.getElementById("studentsListContainer").innerHTML = html;
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Erro ao buscar alunos.");
+            });
+        }
+
+        function toggleStudent(studentId, assign) {
+            const classId = document.getElementById("classId").value;
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            fetch(`/Classes/ToggleStudent`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "RequestVerificationToken": token
+                },
+                body: JSON.stringify({
+                    classId: parseInt(classId),
+                    studentId: studentId,
+                    assign: assign
+                })
+            })
+            .then(res => {
+                if (!res.ok) throw new Error("Erro ao atualizar aluno.");
+                return res.text();
+            })
+            .then(html => {
+                document.getElementById("studentsListContainer").innerHTML = html;
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Erro ao atualizar aluno.");
+            });
+        }
+    </script>
+}

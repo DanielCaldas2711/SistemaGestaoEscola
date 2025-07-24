@@ -1,0 +1,57 @@
+﻿@model SistemaGestaoEscola.Web.Data.Entities.Class
+
+@{
+    ViewData["Title"] = "Editar Turma";
+}
+
+<h2>Editar Turma</h2>
+
+<form asp-action="Edit" method="post">
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(model => model.Id)
+
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label">Nome da Turma</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="CourseId" class="form-label">Curso</label>
+        <select asp-for="CourseId" class="form-select" asp-items="ViewBag.Courses">
+            <option value="">Selecione um curso</option>
+        </select>
+        <span asp-validation-for="CourseId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Shift" class="form-label">Turno</label>
+        <select asp-for="Shift" class="form-select" asp-items="new SelectList(ViewBag.Shifts)">
+            <option value="">Selecione o turno</option>
+        </select>
+        <span asp-validation-for="Shift" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="StartingDate" class="form-label">Data de Início</label>
+        <input asp-for="StartingDate" class="form-control" type="date" />
+        <span asp-validation-for="StartingDate" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="EndingDate" class="form-label">Data de Término</label>
+        <input asp-for="EndingDate" class="form-control" type="date" />
+        <span asp-validation-for="EndingDate" class="text-danger"></span>
+    </div>
+
+    <div class="mt-4">
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+        <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+    </div>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

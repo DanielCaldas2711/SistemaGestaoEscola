@@ -43,6 +43,9 @@
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="CourseDisciplines" asp-action="Index">Courses</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Classes" asp-action="Index">Classes</a>
+                            </li>
                         }
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
@@ -73,9 +76,6 @@
         </nav>
     </header>
 
-    @await Html.PartialAsync("_Toast")
-    @await Html.PartialAsync("_ConfirmPopup")
-
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
@@ -105,6 +105,9 @@
             });
         }
     </script>
+
+    @await Html.PartialAsync("_Toast")
+    @await Html.PartialAsync("_ConfirmPopup")
 
 </body>
 </html>

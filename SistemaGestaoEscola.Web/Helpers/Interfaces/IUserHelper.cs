@@ -41,5 +41,7 @@ namespace SistemaGestaoEscola.Web.Helpers.Interfaces
         Task<IdentityResult> DeleteUserAsync(User user);
 
         Task<IdentityResult> RemoveFromRoleAsync(User user, string role);
+
+        Task<IEnumerable<User>> GetAllUsersByRoleAsync(string role);
     }
 }

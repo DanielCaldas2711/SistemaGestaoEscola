@@ -1,0 +1,65 @@
+﻿@{
+    ViewData["Title"] = "Gerenciar Turmas";
+}
+
+<h2>Gerenciar Turmas</h2>
+
+<div class="row mb-3 align-items-center">
+    <div class="col-md-6">
+        <input type="text" id="searchInput" class="form-control" placeholder="Buscar por nome..." />
+    </div>
+    <div class="col-md-2">
+        <button class="btn btn-primary w-100" onclick="loadClasses()">Buscar</button>
+    </div>
+    <div class="col-md-4 text-end">
+        <a asp-action="Create" class="btn btn-success">Criar Turma</a>
+    </div>
+</div>
+
+<div id="classesContainer"></div>
+
+@section Scripts {
+    <script>
+        function bindDeleteButtons() {
+            document.querySelectorAll('.btn-delete').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const form = this.closest('form');
+                    const className = form.dataset.className;
+
+                    window.showConfirmPopup({
+                        title: "Confirmar Exclusão",
+                        message: `Deseja realmente excluir a turma "${className}"?`,
+                        onConfirm: () => form.submit()
+                    });
+                });
+            });
+        }
+
+        function loadClasses() {
+            const term = document.getElementById("searchInput").value;
+
+            fetch(`/Classes/LoadClasses?searchTerm=${encodeURIComponent(term)}`, {
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
+                }
+            })
+            .then(res => {
+                if (!res.ok) throw new Error("Erro ao carregar turmas.");
+                return res.text();
+            })
+            .then(html => {
+                document.getElementById("classesContainer").innerHTML = html;
+                bindDeleteButtons();
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Erro ao buscar turmas.");
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            loadClasses();
+        });
+    </script>
+}
+

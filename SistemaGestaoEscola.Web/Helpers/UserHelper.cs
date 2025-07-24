@@ -110,6 +110,11 @@ namespace SistemaGestaoEscola.Web.Helpers
             return await _userManager.Users.ToListAsync();
         }
 
+        public async Task<IEnumerable<User>> GetAllUsersByRoleAsync(string role)
+        {
+            return await _userManager.GetUsersInRoleAsync(role);
+        }
+
         public async Task<User> GetUserByIdAsync(string userId)
         {
             return await _userManager.FindByIdAsync(userId);

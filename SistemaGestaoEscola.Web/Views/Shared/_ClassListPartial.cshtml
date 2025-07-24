@@ -1,0 +1,49 @@
+﻿@model IEnumerable<SistemaGestaoEscola.Web.Data.Entities.Class>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Nenhuma turma encontrada.</div>
+}
+else
+{
+    <table class="table table-striped">
+        <thead class="table-light">
+            <tr>
+                <th>Nome</th>
+                <th>Curso</th>
+                <th>Turno</th>
+                <th>Início</th>
+                <th>Fim</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var turma in Model)
+            {
+                <tr>
+                    <td>@turma.Name</td>
+                    <td>@turma.Course?.Type - @turma.Course?.Name</td>
+                    <td>@turma.Shift</td>
+                    <td>@turma.StartingDate.ToString("dd/MM/yyyy")</td>
+                    <td>@turma.EndingDate.ToString("dd/MM/yyyy")</td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@turma.Id" class="btn btn-sm btn-outline-info">Detalhes</a>
+                        <a asp-action="Edit" asp-route-id="@turma.Id" class="btn btn-sm btn-outline-primary">Editar</a>
+
+                        <form asp-action="DeleteConfirmed"
+                              method="post"
+                              class="d-inline delete-form"
+                              data-class-name="@turma.Name">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@turma.Id" />
+                            <button type="button" class="btn btn-sm btn-outline-danger btn-delete">Apagar</button>
+                        </form>
+
+                        <a asp-action="ManageStudents" asp-route-id="@turma.Id" class="btn btn-sm btn-outline-primary">Alunos</a>
+                        <a asp-action="ManageProfessors" asp-route-id="@turma.Id" class="btn btn-sm btn-outline-primary">Professores</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
