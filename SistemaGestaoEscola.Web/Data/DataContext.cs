@@ -16,6 +16,8 @@ namespace SistemaGestaoEscola.Web.Data
         public DbSet<Class> Classes { get; set; }
         public DbSet<ClassStudents> ClassStudents { get; set; }
 
+        public DbSet<ClassProfessors> ClassProfessors { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -56,6 +58,24 @@ namespace SistemaGestaoEscola.Web.Data
                 .HasOne(cs => cs.Student)
                 .WithMany()
                 .HasForeignKey(cs => cs.StudentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ClassProfessors>()
+                .HasOne(cs => cs.Class)
+                .WithMany(c => c.Professors)
+                .HasForeignKey(cs => cs.ClassId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ClassProfessors>()
+               .HasOne(cs => cs.Professor)
+               .WithMany()
+               .HasForeignKey(cs => cs.ProfessorId)
+               .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ClassProfessors>()
+                .HasOne(cs => cs.Subject)
+                .WithMany(c => c.Professors)
+                .HasForeignKey(cs => cs.SubjectId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

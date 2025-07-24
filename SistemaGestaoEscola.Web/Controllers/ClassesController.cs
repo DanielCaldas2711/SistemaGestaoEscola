@@ -14,16 +14,19 @@ namespace SistemaGestaoEscola.Web.Controllers
         private readonly IClassRepository _classRepository;
         private readonly IClassStudentsRepository _classStudentsRepository;
         private readonly ICourseRepository _courseRepository;
+        private readonly IClassProfessorsRepository _classProfessorsRepository;
         private readonly IUserHelper _userHelper;
 
         public ClassesController(IClassRepository classRepository,
             IClassStudentsRepository classStudentsRepository,
             ICourseRepository courseRepository,
+            IClassProfessorsRepository classProfessorsRepository,
             IUserHelper userHelper)
         {
             _classRepository = classRepository;
             _classStudentsRepository = classStudentsRepository;
             _courseRepository = courseRepository;
+            _classProfessorsRepository = classProfessorsRepository;
             _userHelper = userHelper;
         }
 
@@ -302,6 +305,112 @@ namespace SistemaGestaoEscola.Web.Controllers
             catch (Exception)
             {
                 TempData["ToastError"] = "Erro ao atualizar alunos da turma.";
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ManageProfessors(int id)
+        {
+            var Class = await _classRepository.GetAll()
+                .Include(c => c.Course)
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (Class == null)
+            {
+                TempData["ToastError"] = "Turma não encontrada.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var courseDisciplines = await _courseRepository.GetAll()
+                .Where(c => c.Id == Class.CourseId)
+                .SelectMany(c => c.CourseDisciplines)
+                .Include(cd => cd.Subject)
+                .ToListAsync();
+
+            var professors = await _userHelper.GetAllUsersByRoleAsync(UserRole.Professor.ToString());
+
+            var existingAssignments = await _classProfessorsRepository.GetAllClassProfessors(Class.Id);
+
+            var model = new ManageClassProfessorsViewModel
+            {
+                ClassId = Class.Id,
+                ClassName = Class.Name,
+                Assignments = courseDisciplines.Select(cd =>
+                {
+                    var currentAssignment = existingAssignments
+                        .FirstOrDefault(cp => cp.SubjectId == cd.SubjectId);
+
+                    return new ProfessorAssignmentViewModel
+                    {
+                        SubjectId = cd.SubjectId,
+                        SubjectName = cd.Subject.Name,
+                        AssignedProfessorId = currentAssignment?.ProfessorId,
+                        AvailableProfessors = professors.Select(p => new SelectListItem
+                        {
+                            Value = p.Id,
+                            Text = $"{p.FirstName} {p.LastName}"
+                        }).ToList()
+                    };
+                }).ToList()
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ManageProfessors(ManageClassProfessorsViewModel model)
+        {
+            var turma = await _classRepository.GetByIdAsync(model.ClassId);
+            if (turma == null)
+            {
+                TempData["ToastError"] = "Turma não encontrada.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var existingAssignments = await _classProfessorsRepository.GetAll()
+                .Where(cp => cp.ClassId == model.ClassId)
+                .ToListAsync();
+
+            try
+            {
+                foreach (var assignment in model.Assignments)
+                {
+                    var existing = existingAssignments.FirstOrDefault(cp => cp.SubjectId == assignment.SubjectId);
+
+                    if (!string.IsNullOrWhiteSpace(assignment.AssignedProfessorId))
+                    {
+                        if (existing != null)
+                        {
+                            existing.ProfessorId = assignment.AssignedProfessorId;
+                            await _classProfessorsRepository.UpdateAsync(existing);
+                        }
+                        else
+                        {
+                            await _classProfessorsRepository.CreateAsync(new ClassProfessors
+                            {
+                                ClassId = model.ClassId,
+                                SubjectId = assignment.SubjectId,
+                                ProfessorId = assignment.AssignedProfessorId
+                            });
+                        }
+                    }
+                    else
+                    {
+                        if (existing != null)
+                        {
+                            await _classProfessorsRepository.DeleteAsync(existing);
+                        }
+                    }
+                }
+
+                TempData["ToastSuccess"] = "Professores atualizados com sucesso!";
+            }
+            catch (Exception)
+            {
+                TempData["ToastError"] = "Erro ao salvar os professores.";
             }
 
             return RedirectToAction(nameof(Index));

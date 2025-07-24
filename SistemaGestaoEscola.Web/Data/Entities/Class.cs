@@ -28,5 +28,7 @@ namespace SistemaGestaoEscola.Web.Data.Entities
         public DateTime EndingDate { get; set; }
 
         public IEnumerable<ClassStudents> Students { get; set; } = Enumerable.Empty<ClassStudents>();
+
+        public IEnumerable<ClassProfessors> Professors { get; set; } = Enumerable.Empty<ClassProfessors>();
     }
 }

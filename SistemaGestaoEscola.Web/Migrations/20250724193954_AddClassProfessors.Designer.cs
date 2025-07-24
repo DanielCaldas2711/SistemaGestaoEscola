@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SistemaGestaoEscola.Web.Data;
 
@@ -11,9 +12,11 @@ using SistemaGestaoEscola.Web.Data;
 namespace SistemaGestaoEscola.Web.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20250724193954_AddClassProfessors")]
+    partial class AddClassProfessors
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -203,16 +206,11 @@ namespace SistemaGestaoEscola.Web.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("SubjectId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("ClassId");
 
                     b.HasIndex("ProfessorId");
-
-                    b.HasIndex("SubjectId");
 
                     b.ToTable("ClassProfessors");
                 });
@@ -478,17 +476,9 @@ namespace SistemaGestaoEscola.Web.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("SistemaGestaoEscola.Web.Data.Entities.Subject", "Subject")
-                        .WithMany("Professors")
-                        .HasForeignKey("SubjectId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.Navigation("Class");
 
                     b.Navigation("Professor");
-
-                    b.Navigation("Subject");
                 });
 
             modelBuilder.Entity("SistemaGestaoEscola.Web.Data.Entities.ClassStudents", b =>
@@ -544,8 +534,6 @@ namespace SistemaGestaoEscola.Web.Migrations
             modelBuilder.Entity("SistemaGestaoEscola.Web.Data.Entities.Subject", b =>
                 {
                     b.Navigation("CourseDisciplines");
-
-                    b.Navigation("Professors");
                 });
 #pragma warning restore 612, 618
         }

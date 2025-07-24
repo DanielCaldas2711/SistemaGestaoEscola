@@ -22,6 +22,8 @@ namespace SistemaGestaoEscola.Web.Data.Entities
 
         public ICollection<CourseDisciplines> CourseDisciplines { get; set; } = new List<CourseDisciplines>();
 
+        public ICollection<ClassProfessors> Professors { get; set; } = new List<ClassProfessors>();
+
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if (Hours == 25 && Absence != 3)
