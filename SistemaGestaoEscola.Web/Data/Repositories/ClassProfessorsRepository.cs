@@ -12,7 +12,7 @@ namespace SistemaGestaoEscola.Web.Data.Repositories
             _dataContext = dataContext;
         }
 
-        public async Task<IEnumerable<ClassProfessors>> GetAllClassProfessors(int ClassId)
+        public IEnumerable<ClassProfessors> GetAllClassProfessors(int ClassId)
         {
             return _dataContext.ClassProfessors.Where(p => p.ClassId == ClassId);
         }

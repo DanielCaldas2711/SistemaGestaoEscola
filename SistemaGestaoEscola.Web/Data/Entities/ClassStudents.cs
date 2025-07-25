@@ -18,5 +18,7 @@ namespace SistemaGestaoEscola.Web.Data.Entities
 
         [Required]
         public User Student { get; set; }
+
+        public ICollection<StudentGrades> StudentGrades { get; set; } = new List<StudentGrades>();
     }
 }

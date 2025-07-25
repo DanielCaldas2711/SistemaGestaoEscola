@@ -331,7 +331,7 @@ namespace SistemaGestaoEscola.Web.Controllers
 
             var professors = await _userHelper.GetAllUsersByRoleAsync(UserRole.Professor.ToString());
 
-            var existingAssignments = await _classProfessorsRepository.GetAllClassProfessors(Class.Id);
+            var existingAssignments = _classProfessorsRepository.GetAllClassProfessors(Class.Id);
 
             var model = new ManageClassProfessorsViewModel
             {
