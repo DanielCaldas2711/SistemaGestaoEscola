@@ -26,12 +26,12 @@ namespace SistemaGestaoEscola.Web.Data.Entities
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (Hours == 25 && Absence != 3)
+            if (Hours == 25 && Absence != 10)
             {
                 yield return new ValidationResult("Absence must be 3 when Hours is 25.", new[] { nameof(Absence) });
             }
 
-            if (Hours == 50 && Absence != 6)
+            if (Hours == 50 && Absence != 20)
             {
                 yield return new ValidationResult("Absence must be 6 when Hours is 50.", new[] { nameof(Absence) });
             }
