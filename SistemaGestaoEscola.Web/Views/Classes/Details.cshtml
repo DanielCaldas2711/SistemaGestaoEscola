@@ -1,0 +1,82 @@
+﻿@model SistemaGestaoEscola.Web.Models.ClassDetailsViewModel
+
+@{
+    ViewData["Title"] = "Detalhes da Turma";
+}
+
+<h2>Detalhes da Turma</h2>
+
+<div class="mb-4">
+    <h4>@Model.ClassName</h4>
+    <dl class="row">
+        <dt class="col-sm-3">Curso</dt>
+        <dd class="col-sm-9">@Model.CourseName</dd>
+
+        <dt class="col-sm-3">Turno</dt>
+        <dd class="col-sm-9">@Model.Shift</dd>
+
+        <dt class="col-sm-3">Data de Início</dt>
+        <dd class="col-sm-9">@Model.StartingDate.ToShortDateString()</dd>
+
+        <dt class="col-sm-3">Data de Término</dt>
+        <dd class="col-sm-9">@Model.EndingDate.ToShortDateString()</dd>
+    </dl>
+</div>
+
+<hr />
+
+<h4>Disciplinas e Professores</h4>
+@if (Model.Subjects.Any())
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Disciplina</th>
+                <th>Professor</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Subjects)
+            {
+                <tr>
+                    <td>@item.SubjectName</td>
+                    <td>@item.ProfessorName</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>Nenhuma disciplina encontrada para este curso.</p>
+}
+
+<hr />
+
+<h4>Alunos Matriculados</h4>
+@if (Model.Students.Any())
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Email</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var aluno in Model.Students)
+            {
+                <tr>
+                    <td>@aluno.FullName</td>
+                    <td>@aluno.Email</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>Nenhum aluno matriculado nesta turma.</p>
+}
+
+<a asp-action="Index" class="btn btn-secondary mt-3">Voltar</a>

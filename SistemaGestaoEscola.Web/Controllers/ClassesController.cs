@@ -418,6 +418,67 @@ namespace SistemaGestaoEscola.Web.Controllers
 
 
         [HttpGet]
+        public async Task<IActionResult> Details(int id)
+        {
+            var turma = await _classRepository.GetAll()
+                .Include(c => c.Course)
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (turma == null)
+            {
+                TempData["ToastError"] = "Turma não encontrada.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var courseDisciplines = await _courseRepository.GetAll()
+                .Where(c => c.Id == turma.CourseId)
+                .SelectMany(c => c.CourseDisciplines)
+                .Include(cd => cd.Subject)
+                .ToListAsync();
+
+            var classProfessors = await _classProfessorsRepository.GetAll()
+                .Where(cp => cp.ClassId == turma.Id)
+                .Include(cp => cp.Professor)
+                .ToListAsync();
+
+            var classStudents = await _classStudentsRepository.GetAll()
+                .Where(cs => cs.ClassId == turma.Id)
+                .Include(cs => cs.Student)
+                .ToListAsync();
+
+            var model = new ClassDetailsViewModel
+            {
+                ClassId = turma.Id,
+                ClassName = turma.Name,
+                Shift = turma.Shift,
+                StartingDate = turma.StartingDate,
+                EndingDate = turma.EndingDate,
+                CourseName = turma.Course?.Name ?? "N/A",
+                Subjects = courseDisciplines.Select(cd =>
+                {
+                    var professor = classProfessors
+                        .FirstOrDefault(cp => cp.SubjectId == cd.SubjectId)?.Professor;
+
+                    return new SubjectProfessorViewModel
+                    {
+                        SubjectName = cd.Subject.Name,
+                        ProfessorName = professor != null
+                            ? $"{professor.FirstName} {professor.LastName}"
+                            : "Não atribuído"
+                    };
+                }).ToList(),
+                Students = classStudents.Select(cs => new StudentViewModel
+                {
+                    FullName = $"{cs.Student.FirstName} {cs.Student.LastName}",
+                    Email = cs.Student.Email
+                }).ToList()
+            };
+
+            return View(model);
+        }
+
+
+        [HttpGet]
         public async Task<IActionResult> LoadClasses(string? searchTerm)
         {
             var query = _classRepository.GetAll().Include(c => c.Course);
@@ -425,7 +486,7 @@ namespace SistemaGestaoEscola.Web.Controllers
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
                 var lowerTerm = searchTerm.Trim().ToLower();
-                query = query.Where(c => c.Name.ToLower().Contains(lowerTerm)).Include(c => c.Course);
+                query = query.Where(c => c.Name.ToLower().StartsWith(lowerTerm)).Include(c => c.Course);
             }
 
             var classes = await query
