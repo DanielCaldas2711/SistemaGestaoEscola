@@ -4,6 +4,8 @@
     {
         IQueryable<T> GetAll();
 
+        IQueryable<T> GetAllWithTracking();
+
         Task<T> GetByIdAsync(int id);
 
         Task CreateAsync(T entity);

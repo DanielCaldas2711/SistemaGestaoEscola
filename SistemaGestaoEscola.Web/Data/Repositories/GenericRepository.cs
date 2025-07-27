@@ -19,6 +19,11 @@ namespace SistemaGestaoEscola.Web.Data.Repositories
                 .AsNoTracking();
         }
 
+        public IQueryable<T> GetAllWithTracking()
+        {
+            return _context.Set<T>();
+        }
+
         public async Task<T> GetByIdAsync(int id)
         {
             return await _context.Set<T>()

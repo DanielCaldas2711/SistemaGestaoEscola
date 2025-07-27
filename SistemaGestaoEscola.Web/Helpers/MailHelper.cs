@@ -1,15 +1,14 @@
-﻿using SistemaGestaoEscola.Web.Helpers.Interfaces;
-using SistemaGestaoEscola.Web.Models;
-using Microsoft.Extensions.Configuration;
-using MimeKit;
-using MailKit.Net.Smtp;
+﻿using MailKit.Net.Smtp;
 using Microsoft.Extensions.Options;
+using MimeKit;
+using SistemaGestaoEscola.Web.Helpers.Interfaces;
+using SistemaGestaoEscola.Web.Models;
 
 namespace SistemaGestaoEscola.Web.Helpers
 {
     public class MailHelper : IMailHelper
     {
-        
+
         private readonly MailSettings _mailSettings;
 
         public MailHelper(IOptions<MailSettings> options)

@@ -1,0 +1,39 @@
+﻿@model ManageGradesViewModel
+
+@{
+    ViewData["Title"] = "Gerenciar Notas - " + Model.ClassName;
+}
+
+<h3>@ViewData["Title"]</h3>
+<p><strong>Curso:</strong> @Model.CourseName</p>
+
+<hr />
+
+@if (!Model.Subjects.Any())
+{
+    <div class="alert alert-warning">
+        Nenhuma disciplina atribuída a você nesta turma.
+    </div>
+}
+else
+{
+    <div class="row">
+        @foreach (var subject in Model.Subjects)
+        {
+            <div class="col-md-4">
+                <div class="card mb-3 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">@subject.SubjectName</h5>
+                        <a asp-action="ManageGrades"
+                           asp-controller="StudentGrades"
+                           asp-route-classId="@Model.ClassId"
+                           asp-route-subjectId="@subject.SubjectId"
+                           class="btn btn-primary">
+                            Gerenciar Notas
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

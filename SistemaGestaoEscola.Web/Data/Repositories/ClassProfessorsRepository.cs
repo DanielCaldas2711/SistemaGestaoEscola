@@ -12,6 +12,12 @@ namespace SistemaGestaoEscola.Web.Data.Repositories
             _dataContext = dataContext;
         }
 
+        public IQueryable<ClassProfessors> GetAllTracked()
+        {
+            return _dataContext.ClassProfessors;
+        }
+
+
         public IEnumerable<ClassProfessors> GetAllClassProfessors(int ClassId)
         {
             return _dataContext.ClassProfessors.Where(p => p.ClassId == ClassId);

@@ -1,0 +1,29 @@
+﻿@model IEnumerable<SistemaGestaoEscola.Web.Data.Entities.Class>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Turma</th>
+            <th>Curso</th>
+            <th>Turno</th>
+            <th>Período</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var turma in Model)
+        {
+            <tr>
+                <td>@turma.Name</td>
+                <td>@turma.Course.Name</td>
+                <td>@turma.Shift</td>
+                <td>@turma.StartingDate.ToShortDateString() - @turma.EndingDate.ToShortDateString()</td>
+                <td>
+                    <a asp-controller="StudentGrades" asp-action="Manage" asp-route-id="@turma.Id" class="btn btn-sm btn-primary">
+                        Gerenciar Notas
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,39 @@
+﻿@{
+    ViewData["Title"] = "Minhas Turmas";
+}
+
+<h3>Minhas Turmas</h3>
+
+<div class="input-group mb-3">
+    <input type="text" id="searchBox" class="form-control" placeholder="Buscar turma..." />
+    <button class="btn btn-primary" type="button" id="btnSearch">Buscar</button>
+</div>
+
+<div id="classListContainer">
+</div>
+
+@section Scripts {
+    <script>
+        function loadClasses() {
+            const term = $('#searchBox').val();
+            $.get('/StudentGrades/LoadProfessorClasses', { searchTerm: term }, function (data) {
+                $('#classListContainer').html(data);
+            });
+        }
+
+        $(document).ready(function () {
+
+            loadClasses();
+
+            $('#btnSearch').on('click', function () {
+                loadClasses();
+            });
+            
+            $('#searchBox').on('keypress', function (e) {
+                if (e.which === 13) {
+                    loadClasses();
+                }
+            });
+        });
+    </script>
+}

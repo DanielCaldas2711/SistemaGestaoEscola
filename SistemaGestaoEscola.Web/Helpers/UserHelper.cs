@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SistemaGestaoEscola.Web.Data.Entities;
 using SistemaGestaoEscola.Web.Helpers.Interfaces;
 using SistemaGestaoEscola.Web.Models;
+using System.Security.Claims;
 
 namespace SistemaGestaoEscola.Web.Helpers
 {
@@ -128,6 +129,15 @@ namespace SistemaGestaoEscola.Web.Helpers
         public async Task<IdentityResult> RemoveFromRoleAsync(User user, string role)
         {
             return await _userManager.RemoveFromRoleAsync(user, role);
+        }
+
+        public async Task<User?> GetUserAsync(ClaimsPrincipal User)
+        {
+            if (User == null)
+            {
+                return null;
+            }
+            return await _userManager.GetUserAsync(User);
         }
     }
 }

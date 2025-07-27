@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using SistemaGestaoEscola.Web.Data.Entities;
 using SistemaGestaoEscola.Web.Models;
+using System.Security.Claims;
 
 namespace SistemaGestaoEscola.Web.Helpers.Interfaces
 {
@@ -43,5 +44,7 @@ namespace SistemaGestaoEscola.Web.Helpers.Interfaces
         Task<IdentityResult> RemoveFromRoleAsync(User user, string role);
 
         Task<IEnumerable<User>> GetAllUsersByRoleAsync(string role);
+
+        Task<User?> GetUserAsync(ClaimsPrincipal User);
     }
 }
