@@ -1,18 +1,22 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SistemaGestaoEscola.Web.Data;
+using SistemaGestaoEscola.Web.Data.Repositories.Interfaces;
 using SistemaGestaoEscola.Web.Models;
 using System.Diagnostics;
 
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
-    private readonly DataContext _context;
+    private readonly IClassRepository _classRepository;
+    private readonly ICourseRepository _courseRepository;
 
-    public HomeController(ILogger<HomeController> logger, DataContext context)
+    public HomeController(ILogger<HomeController> logger,
+        IClassRepository classRepository,
+        ICourseRepository courseRepository)
     {
         _logger = logger;
-        _context = context;
+        _classRepository = classRepository;
+        _courseRepository = courseRepository;
     }
 
     public IActionResult Index()
@@ -28,7 +32,7 @@ public class HomeController : Controller
     [HttpGet]
     public async Task<IActionResult> Courses()
     {
-        var courses = await _context.Courses
+        var courses = await _courseRepository.GetAll()
             .Where(c => c.IsActive)
             .Include(c => c.CourseDisciplines)
                 .ThenInclude(cd => cd.Subject)
@@ -54,7 +58,7 @@ public class HomeController : Controller
     [HttpGet]
     public async Task<IActionResult> Classes()
     {
-        var classes = await _context.Classes
+        var classes = await _classRepository.GetAll()
             .Where(c => c.StartingDate > DateTime.UtcNow)
             .Include(c => c.Course)
             .OrderBy(c => c.Name)
@@ -78,7 +82,7 @@ public class HomeController : Controller
     [HttpGet]
     public async Task<IActionResult> ClassDetails(int id)
     {
-        var turma = await _context.Classes
+        var turma = await _classRepository.GetAll()
             .Include(c => c.Course)
                 .ThenInclude(c => c.CourseDisciplines)
                     .ThenInclude(cd => cd.Subject)
