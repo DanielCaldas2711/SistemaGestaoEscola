@@ -1,0 +1,84 @@
+﻿@model List<MyGradesViewModel>
+
+@{
+    ViewData["Title"] = "Minhas Notas";
+}
+
+<h3 class="mb-4">Minhas Notas</h3>
+
+@if (Model == null || !Model.Any())
+{
+    <div class="alert alert-info">
+        Você ainda não está matriculado em nenhuma turma ou não possui notas registradas.
+    </div>
+}
+else
+{
+    foreach (var turma in Model)
+    {
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <strong>@turma.ClassName</strong> — @turma.CourseName
+            </div>
+            <div class="card-body">
+                @if (!turma.Grades.Any())
+                {
+                    <p class="text-muted">Nenhuma disciplina encontrada nesta turma.</p>
+                }
+                else
+                {
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Disciplina</th>
+                                <th>Horas</th>
+                                <th>Nota</th>
+                                <th>Faltas</th>
+                                <th>Situação</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var grade in turma.Grades)
+                            {
+                                var abscenceLimit = grade.SubjectHours == 25 ? 10 : (grade.SubjectHours == 50 ? 20 : 0);
+                                string situation;
+                                string classSituation;
+
+                                if (grade.Grade == 0 && grade.Absences == 0)
+                                {
+                                    situation = "Sem notas";
+                                    classSituation = "text-secondary";
+                                }
+                                else if (grade.Absences >= abscenceLimit)
+                                {
+                                    situation = "Reprovado por faltas";
+                                    classSituation = "text-danger";
+                                }
+                                else if (grade.Grade >= 10)
+                                {
+                                    situation = "Aprovado";
+                                    classSituation = "text-success";
+                                }
+                                else
+                                {
+                                    situation = "Reprovado";
+                                    classSituation = "text-danger";
+                                }
+
+                                <tr>
+                                    <td>@grade.SubjectCode</td>
+                                    <td>@grade.SubjectName</td>
+                                    <td>@grade.SubjectHours</td>
+                                    <td>@grade.Grade</td>
+                                    <td>@grade.Absences</td>
+                                    <td class="@classSituation"><strong>@situation</strong></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+    }
+}

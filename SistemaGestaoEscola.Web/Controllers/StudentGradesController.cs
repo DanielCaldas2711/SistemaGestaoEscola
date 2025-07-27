@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SistemaGestaoEscola.Web.Data.Repositories;
 using SistemaGestaoEscola.Web.Data.Repositories.Interfaces;
 using SistemaGestaoEscola.Web.Helpers.Interfaces;
 using SistemaGestaoEscola.Web.Models;
@@ -31,12 +31,14 @@ namespace SistemaGestaoEscola.Web.Controllers
             _classRepository = classRepository;
         }
 
+        [Authorize(Roles = "Professor")]
         public IActionResult Index()
         {
             return View();
         }
 
         [HttpGet]
+        [Authorize(Roles = "Professor")]
         public async Task<IActionResult> Manage(int id)
         {
             var user = await _userHelper.GetUserAsync(User);
@@ -83,12 +85,13 @@ namespace SistemaGestaoEscola.Web.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Professor")]
         public async Task<IActionResult> ManageGrades(int classId, int subjectId)
         {
             var user = await _userHelper.GetUserAsync(User);
             if (user == null)
                 return Unauthorized();
-            
+
             var isAssigned = await _classProfessorsRepository.GetAll()
                 .AnyAsync(cp => cp.ClassId == classId && cp.SubjectId == subjectId && cp.ProfessorId == user.Id);
 
@@ -97,7 +100,7 @@ namespace SistemaGestaoEscola.Web.Controllers
                 TempData["ToastError"] = "Você não está atribuído a esta disciplina nesta turma.";
                 return RedirectToAction(nameof(Index));
             }
-            
+
             var turma = await _classRepository.GetAll()
                 .Include(c => c.Course)
                 .FirstOrDefaultAsync(c => c.Id == classId);
@@ -115,7 +118,7 @@ namespace SistemaGestaoEscola.Web.Controllers
                 .Where(cs => cs.ClassId == classId)
                 .Include(cs => cs.Student)
                 .ToListAsync();
-            
+
             var grades = await _studentGradesRepository.GetAll()
                 .Where(g => g.SubjectId == subjectId && students.Select(s => s.Id).Contains(g.ClassStudentsId))
                 .ToListAsync();
@@ -126,7 +129,8 @@ namespace SistemaGestaoEscola.Web.Controllers
                 ClassName = turma.Name,
                 SubjectId = subject.Id,
                 SubjectName = subject.Name,
-                Students = students.Select(s => {
+                Students = students.Select(s =>
+                {
                     var grade = grades.FirstOrDefault(g => g.ClassStudentsId == s.Id);
 
                     return new GradeStudentViewModel
@@ -143,6 +147,7 @@ namespace SistemaGestaoEscola.Web.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Professor")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ManageGrades(GradeEntryViewModel model)
         {
@@ -157,7 +162,7 @@ namespace SistemaGestaoEscola.Web.Controllers
             {
                 return Unauthorized();
             }
-            
+
             var isAuthorized = await _classProfessorsRepository.GetAll()
                 .AnyAsync(cp => cp.ClassId == model.ClassId && cp.SubjectId == model.SubjectId && cp.ProfessorId == user.Id);
 
@@ -178,7 +183,7 @@ namespace SistemaGestaoEscola.Web.Controllers
                         TempData["ToastError"] = "Insira corretamente as horas de faltas dos alunos.";
                         return RedirectToAction(nameof(Index));
                     }
-                }                
+                }
             }
 
             try
@@ -199,7 +204,7 @@ namespace SistemaGestaoEscola.Web.Controllers
                         });
                     }
                     else
-                    {                        
+                    {
                         grade.Value = student.Grade ?? 0;
                         grade.UnexcusedAbsence = student.UnexcusedAbsence;
                         await _studentGradesRepository.UpdateAsync(grade);
@@ -216,6 +221,66 @@ namespace SistemaGestaoEscola.Web.Controllers
             return RedirectToAction(nameof(Manage), new { id = model.ClassId });
         }
 
+        [HttpGet]
+        [Authorize(Roles = "Student")]
+        public async Task<IActionResult> MyGrades()
+        {
+            var user = await _userHelper.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            var studentEntries = await _classStudentsRepository.GetAll()
+                .Where(cs => cs.StudentId == user.Id)
+                .Include(cs => cs.StudentGrades)
+                    .ThenInclude(g => g.Subject)
+                .ToListAsync();
+
+            if (!studentEntries.Any())
+            {
+                TempData["ToastError"] = "Erro ao encontrar notas.";
+                return NotFound();
+            }
+
+            var classEntity = await _classRepository.GetAll()
+                .Include(c => c.Course)
+                    .ThenInclude(c => c.CourseDisciplines)
+                        .ThenInclude(cd => cd.Subject)
+                .FirstOrDefaultAsync(c => c.Id == studentEntries.First().ClassId);
+
+            if (classEntity == null)
+            {
+                TempData["ToastError"] = "Erro ao encontrar a turma.";
+                return NotFound();
+            }
+
+            var courseSubjects = classEntity.Course.CourseDisciplines.Select(cd => cd.Subject).ToList();
+            var studentGrades = studentEntries.First().StudentGrades;
+
+            var gradesList = courseSubjects.Select(subject =>
+            {
+                var grade = studentGrades.FirstOrDefault(g => g.SubjectId == subject.Id);
+
+                return new GradeDisplayViewModel
+                {
+                    SubjectName = subject.Name,
+                    SubjectCode = subject.Code,
+                    SubjectHours = subject.Hours,
+                    Grade = grade?.Value ?? 0,
+                    Absences = grade?.UnexcusedAbsence ?? 0
+                };
+            }).ToList();
+
+            var model = new List<MyGradesViewModel>
+            {
+                new MyGradesViewModel
+                {
+                    ClassName = classEntity.Name,
+                    CourseName = classEntity.Course.Name,
+                    Grades = gradesList
+                }
+            };
+
+            return View(model);
+        }
 
         [HttpGet]
         public async Task<IActionResult> LoadProfessorClasses(string? searchTerm)

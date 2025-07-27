@@ -53,6 +53,12 @@
                                 <a class="nav-link text-dark" asp-area="" asp-controller="StudentGrades" asp-action="Index">Turmas</a>
                             </li>
                         }
+                        @if (User.Identity.IsAuthenticated && User.IsInRole("Student"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="StudentGrades" asp-action="MyGrades">Notas</a>
+                            </li>
+                        }
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
                         @if (User.Identity.IsAuthenticated)
