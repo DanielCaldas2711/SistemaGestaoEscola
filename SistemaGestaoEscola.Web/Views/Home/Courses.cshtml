@@ -1,0 +1,35 @@
+﻿@model List<PublicCourseViewModel>
+
+@{
+    ViewData["Title"] = "Cursos Disponíveis";
+}
+
+<h2 class="mb-4">Cursos</h2>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Nenhum curso disponível no momento.</div>
+}
+else
+{
+    foreach (var course in Model)
+    {
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-secondary text-white">
+                <strong>@course.CourseType - @course.CourseName - @course.Duration horas</strong>
+            </div>
+            <div class="card-body">                
+                <h6>Disciplinas:</h6>
+                <ul class="list-group list-group-flush">
+                    @foreach (var subject in course.Subjects)
+                    {
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>@subject.SubjectName</span>
+                            <span><strong>@subject.Hours</strong> horas</span>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    }
+}

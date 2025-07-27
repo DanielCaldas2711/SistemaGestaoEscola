@@ -3,7 +3,7 @@
 @inject IUserHelper UserHelper
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -11,63 +11,99 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/SistemaGestaoEscola.Web.styles.css" asp-append-version="true" />
+
+    <style>
+        .nav-item.dropdown:hover .dropdown-menu {
+            display: block;
+        }
+
+        .dropdown-menu a:hover {
+            background-color: #f8f9fa;
+        }
+    </style>
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">ETEMB</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">ETEMB</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+
+                <div class="collapse navbar-collapse d-sm-inline-flex justify-content-between" id="navbarSupportedContent">
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
+                        @if (!User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Home" asp-action="Index">Início</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Home" asp-action="Courses">Nossos Cursos</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Home" asp-action="Classes">Nossas Turmas</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item dropdown d-flex align-items-center">                                
+                                <a class="nav-link dropdown-toggle text-dark ms-1" href="#" id="menuDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Dinel</a>
+                                <ul class="dropdown-menu" aria-labelledby="menuDropdown">                                    
+                                    <li><a class="nav-link text-dark" asp-controller="Home" asp-action="Index">Início</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Home" asp-action="Courses">Nossos Cursos</a></li>
+                                    <li><a class="nav-link text-dark" asp-controller="Home" asp-action="Classes">Nossas Turmas</a></li>
+                                </ul>
+                            </li>
+
+                        }
+
                         @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Users" asp-action="Index">Users</a>
+                                <a class="nav-link text-dark" asp-controller="Users" asp-action="Index">Users</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Subjects" asp-action="Index">Subjects</a>
+                                <a class="nav-link text-dark" asp-controller="Subjects" asp-action="Index">Subjects</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Courses" asp-action="Index">Courses</a>
+                                <a class="nav-link text-dark" asp-controller="Courses" asp-action="Index">Courses</a>
                             </li>
-                        }   
+                        }
+
                         @if (User.Identity.IsAuthenticated && User.IsInRole("Secretary"))
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="CourseDisciplines" asp-action="Index">Courses</a>
+                                <a class="nav-link text-dark" asp-controller="CourseDisciplines" asp-action="Index">Courses</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Classes" asp-action="Index">Classes</a>
+                                <a class="nav-link text-dark" asp-controller="Classes" asp-action="Index">Classes</a>
                             </li>
                         }
+
                         @if (User.Identity.IsAuthenticated && User.IsInRole("Professor"))
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="StudentGrades" asp-action="Index">Turmas</a>
+                                <a class="nav-link text-dark" asp-controller="StudentGrades" asp-action="Index">Turmas</a>
                             </li>
                         }
+
                         @if (User.Identity.IsAuthenticated && User.IsInRole("Student"))
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="StudentGrades" asp-action="MyGrades">Notas</a>
+                                <a class="nav-link text-dark" asp-controller="StudentGrades" asp-action="MyGrades">Notas</a>
                             </li>
                         }
                     </ul>
-                    <ul class="nav navbar-nav navbar-right">
+
+                    <ul class="navbar-nav">
                         @if (User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item d-flex align-items-center me-2">
                                 @await Component.InvokeAsync("UserSummary")
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="ChangePassword">Change Password</a>
+                                <a class="nav-link text-dark" asp-controller="Account" asp-action="ChangePassword">Change Password</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Account" asp-action="EditProfile">Edit Profile</a>
@@ -79,7 +115,7 @@
                         else
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login">Login</a>
+                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Login</a>
                             </li>
                         }
                     </ul>
@@ -96,7 +132,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; @DateTime.Now.Year - SistemaGestaoEscola.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; @DateTime.Now.Year - SistemaGestaoEscola.Web - <a asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
 

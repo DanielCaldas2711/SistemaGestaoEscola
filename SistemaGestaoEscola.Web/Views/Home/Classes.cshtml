@@ -1,0 +1,46 @@
+﻿@model List<PublicClassViewModel>
+
+@{
+    ViewData["Title"] = "Turmas Disponíveis";
+}
+
+<h3 class="mb-4">Turmas Disponíveis</h3>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Nenhuma turma aberta no momento.</div>
+}
+else
+{
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
+            <tr>                
+                <th>Nome</th>
+                <th>Tipo</th>
+                <th>Curso</th>
+                <th>Início</th>
+                <th>Fim</th>
+                <th>Duração (horas)</th>
+                <th>Turno</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var turma in Model)
+            {
+                <tr>                   
+                    <td>@turma.ClassName</td>
+                    <td>@turma.CourseType</td>
+                    <td>@turma.CourseName</td>
+                    <td>@turma.StartingDate.ToShortDateString()</td>
+                    <td>@turma.EndingDate.ToShortDateString()</td>
+                    <td>@turma.DurationHours</td>
+                    <td>@turma.Shift</td>
+                    <td>
+                        <a class="btn btn-sm btn-primary" asp-action="ClassDetails" asp-route-id="@turma.Id">Ver Detalhes</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
