@@ -15,15 +15,12 @@ namespace SistemaGestaoEscola.Web.ApiControllers
     public class ClassApiController : ControllerBase
     {        
         private readonly IClassRepository _classRepository;
-        private readonly IUserHelper _userHelper;
         private readonly IClassStudentsRepository _classStudentsRepository;
 
         public ClassApiController(IClassRepository classRepository,
-            IUserHelper userHelper,
             IClassStudentsRepository classStudentsRepository)
         {            
             _classRepository = classRepository;
-            _userHelper = userHelper;
             _classStudentsRepository = classStudentsRepository;
         }
 
