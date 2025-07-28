@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using SistemaGestaoEscola.Web.Data.Entities;
 using SistemaGestaoEscola.Web.Helpers.Interfaces;
 using SistemaGestaoEscola.Web.Models;
@@ -66,7 +65,7 @@ public class AlertsController : Controller
             "read" => alertsQuery.Where(a => a.IsRead),
             _ => alertsQuery
         };
-        
+
         alertsQuery = sort == "asc"
             ? alertsQuery.OrderBy(a => a.CreatedAt)
             : alertsQuery.OrderByDescending(a => a.CreatedAt);
