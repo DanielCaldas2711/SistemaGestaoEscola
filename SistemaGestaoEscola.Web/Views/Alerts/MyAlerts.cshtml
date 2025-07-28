@@ -1,0 +1,121 @@
+﻿@model IEnumerable<SistemaGestaoEscola.Web.Data.Entities.Alert>
+@{
+    ViewData["Title"] = "Meus Alertas";
+    var currentFilter = ViewBag.CurrentFilter as string ?? "all";
+    var currentSort = ViewBag.CurrentSort as string ?? "desc";
+    var currentPage = (int)(ViewBag.CurrentPage ?? 1);
+    var totalPages = (int)(ViewBag.TotalPages ?? 1);
+}
+
+<h2 class="mb-4">Meus Alertas</h2>
+
+<form method="get" asp-action="MyAlerts" class="row g-2 mb-3">
+    <input type="hidden" name="page" value="1" />
+    <div class="col-md-4">
+        <label class="form-label">Filtrar por status</label>
+        <select class="form-select" name="filter" onchange="this.form.submit()">
+            <option value="all" selected="@(currentFilter == "all")">Todos</option>
+            <option value="unread" selected="@(currentFilter == "unread")">Não lidos</option>
+            <option value="read" selected="@(currentFilter == "read")">Lidos</option>
+        </select>
+    </div>
+    <div class="col-md-4">
+        <label class="form-label">Ordenar por</label>
+        <select class="form-select" name="sort" onchange="this.form.submit()">
+            <option value="desc" selected="@(currentSort == "desc")">Mais recentes</option>
+            <option value="asc" selected="@(currentSort == "asc")">Mais antigos</option>
+        </select>
+    </div>
+</form>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Nenhum alerta recebido.</div>
+}
+else
+{
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>Título</th>
+                <th>Descrição</th>
+                <th>Enviado por</th>
+                <th>Data</th>
+                <th>Status</th>
+                <th style="width: 130px;">Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var alert in Model)
+            {
+                <tr class="@(alert.IsRead ? "" : "table-warning")">
+                    <td>@alert.Title</td>
+                    <td>@alert.Description</td>
+                    <td>
+                        @alert.FromUser?.FullName <br />
+                        <small>@alert.FromUser?.Email</small>
+                    </td>
+                    <td>@alert.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>
+                        @if (alert.IsRead)
+                        {
+                            <span class="badge bg-success">Lido</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">Não lido</span>
+                        }
+                    </td>
+                    <td>
+                        @if (!alert.IsRead)
+                        {
+                            <form asp-action="MarkAsRead" asp-route-id="@alert.Id" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-primary">Marcar como lido</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <span class="text-muted">-</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <nav aria-label="Navegação de páginas">
+        <ul class="pagination justify-content-center">
+            <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                <a class="page-link"
+                   asp-action="MyAlerts"
+                   asp-route-filter="@currentFilter"
+                   asp-route-sort="@currentSort"
+                   asp-route-page="@(currentPage - 1)">
+                    Anterior
+                </a>
+            </li>
+
+            @for (int i = 1; i <= totalPages; i++)
+            {
+                <li class="page-item @(i == currentPage ? "active" : "")">
+                    <a class="page-link"
+                       asp-action="MyAlerts"
+                       asp-route-filter="@currentFilter"
+                       asp-route-sort="@currentSort"
+                       asp-route-page="@i">
+                        @i
+                    </a>
+                </li>
+            }
+
+            <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                <a class="page-link"
+                   asp-action="MyAlerts"
+                   asp-route-filter="@currentFilter"
+                   asp-route-sort="@currentSort"
+                   asp-route-page="@(currentPage + 1)">
+                    Próxima
+                </a>
+            </li>
+        </ul>
+    </nav>
+}

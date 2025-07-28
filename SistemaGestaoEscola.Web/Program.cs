@@ -97,6 +97,7 @@ namespace SistemaGestaoEscola.Web
             builder.Services.AddScoped<IClassStudentsRepository, ClassStudentsRepository>();
             builder.Services.AddScoped<IClassProfessorsRepository, ClassProfessorsRepository>();
             builder.Services.AddScoped<IStudentGradesRepository, StudentGradesRepository>();
+            builder.Services.AddScoped<IAlertRepository, AlertRepository>();
 
             //Add Services
             builder.Services.AddTransient<SeedDb>();

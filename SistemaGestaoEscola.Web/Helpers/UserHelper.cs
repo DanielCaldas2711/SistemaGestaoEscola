@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using SistemaGestaoEscola.Web.Data;
 using SistemaGestaoEscola.Web.Data.Entities;
 using SistemaGestaoEscola.Web.Helpers.Interfaces;
 using SistemaGestaoEscola.Web.Models;
@@ -12,14 +13,17 @@ namespace SistemaGestaoEscola.Web.Helpers
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IAlertRepository _alertRepository;
 
         public UserHelper(UserManager<User> userManager,
             SignInManager<User> signInManager,
-            RoleManager<IdentityRole> roleManager)
+            RoleManager<IdentityRole> roleManager,
+            IAlertRepository alertRepository)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
+            _alertRepository = alertRepository;
         }
 
         public async Task<IdentityResult> AddUserAsync(User user, string password)
@@ -139,5 +143,17 @@ namespace SistemaGestaoEscola.Web.Helpers
             }
             return await _userManager.GetUserAsync(User);
         }
+
+        public async Task<int> GetUnreadAlertsCountAsync(ClaimsPrincipal user)
+        {
+            var currentUser = await GetUserAsync(user);
+            if (currentUser == null || !await _userManager.IsInRoleAsync(currentUser, "Admin"))
+                return 0;
+
+            return await _alertRepository.GetAll()
+                .Where(a => a.ToUserId == currentUser.Id && !a.IsRead)
+                .CountAsync();
+        }
+
     }
 }

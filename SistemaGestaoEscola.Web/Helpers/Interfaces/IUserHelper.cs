@@ -46,5 +46,7 @@ namespace SistemaGestaoEscola.Web.Helpers.Interfaces
         Task<IEnumerable<User>> GetAllUsersByRoleAsync(string role);
 
         Task<User?> GetUserAsync(ClaimsPrincipal User);
+
+        Task<int> GetUnreadAlertsCountAsync(ClaimsPrincipal user);
     }
 }

@@ -1,0 +1,33 @@
+﻿@model AlertViewModel
+
+<form id="alertForm">
+    <div class="modal-header">
+        <h5 class="modal-title">Enviar Alerta</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+    </div>
+    <div class="modal-body">
+        <div class="mb-3">
+            <label for="alertTitle" class="form-label">Título</label>
+            <input type="text" class="form-control" id="alertTitle" name="Title" required />
+        </div>
+        <div class="mb-3">
+            <label for="alertDescription" class="form-label">Descrição</label>
+            <textarea class="form-control" id="alertDescription" name="Description" rows="3" required></textarea>
+        </div>
+        <div class="mb-3">
+            <label for="alertReceiver" class="form-label">Administrador</label>
+            <select class="form-select" id="alertReceiver" name="ReceiverId" required>
+                <option value="">-- Selecione --</option>
+                @foreach (var admin in Model.Admins)
+                {
+                    <option value="@admin.Value">@admin.Text</option>
+                }
+            </select>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <span id="alertFeedback" class="me-auto text-success"></span>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Enviar</button>
+    </div>
+</form>
