@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
+[ApiExplorerSettings(IgnoreApi = true)]
 public class ErrorController : Controller
 {
+    [HttpGet]
     [Route("Error/{statusCode}")]
     public IActionResult HttpStatusCodeHandler(int statusCode)
     {

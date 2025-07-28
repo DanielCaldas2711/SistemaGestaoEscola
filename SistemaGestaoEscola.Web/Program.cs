@@ -11,7 +11,6 @@ using SistemaGestaoEscola.Web.Helpers.Interfaces;
 using SistemaGestaoEscola.Web.Models;
 using System.Text;
 
-
 namespace SistemaGestaoEscola.Web
 {
     public class Program
@@ -22,18 +21,14 @@ namespace SistemaGestaoEscola.Web
 
             #region DataContext
 
-            //Get the connection string
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-
-
-            //Add DbContext using Sql Server
-            builder.Services.AddDbContext<DataContext>(options => options.UseSqlServer(connectionString));
+            builder.Services.AddDbContext<DataContext>(options =>
+                options.UseSqlServer(connectionString));
 
             #endregion
 
             #region Identity
 
-            //Password rules configuration
             builder.Services.AddIdentity<User, IdentityRole>(options =>
             {
                 options.User.RequireUniqueEmail = true;
@@ -50,7 +45,6 @@ namespace SistemaGestaoEscola.Web
 
             #region JWT
 
-            // Getting the JWT data from Secret
             builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
             var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>();
 
@@ -88,7 +82,6 @@ namespace SistemaGestaoEscola.Web
 
             #region Services
 
-            //Add Repositories
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
             builder.Services.AddScoped<ICourseRepository, CourseRepository>();
@@ -99,28 +92,61 @@ namespace SistemaGestaoEscola.Web
             builder.Services.AddScoped<IStudentGradesRepository, StudentGradesRepository>();
             builder.Services.AddScoped<IAlertRepository, AlertRepository>();
 
-            //Add Services
             builder.Services.AddTransient<SeedDb>();
             builder.Services.AddScoped<IUserHelper, UserHelper>();
             builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("Email"));
             builder.Services.AddScoped<IMailHelper, MailHelper>();
 
-            // Add views 
             builder.Services.AddControllersWithViews();
+            builder.Services.AddControllers(); // For the API
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new() { Title = "SistemaGestaoEscola API", Version = "v1" });
+
+                c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                {
+                    Description = "JWT Authorization header usando o esquema Bearer. \r\n\r\n Exemplo: 'Bearer eyJhbGciOi...'",
+                    Name = "Authorization",
+                    In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer"
+                });
+
+                c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+                {
+                    {
+                new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                {
+                    Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                    {
+                        Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                        Id = "bearer"
+                    }
+                },
+                        Array.Empty<string>()
+                    }
+                });
+             });
 
             #endregion
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Error/500");
                 app.UseHsts();
             }
 
-            //app.UseExceptionHandler("/Error/500");
             app.UseStatusCodePagesWithReExecute("/Error/{0}");
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "ETEMB API V1");
+                c.RoutePrefix = "swagger";
+            });
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
@@ -134,11 +160,13 @@ namespace SistemaGestaoEscola.Web
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
 
-            RunSeeding(app); //Runs SeedDb
+            app.MapControllers();
+
+            RunSeeding(app);
 
             app.Run();
-
         }
+
         private static void RunSeeding(IHost host)
         {
             var scopeFactory = host.Services.GetService<IServiceScopeFactory>();

@@ -155,5 +155,10 @@ namespace SistemaGestaoEscola.Web.Helpers
                 .CountAsync();
         }
 
+        public async Task<bool> CheckPasswordAsync(User user, LoginRequest request)
+        {
+            return await _userManager.CheckPasswordAsync(user, request.Password);
+        }
+
     }
 }
