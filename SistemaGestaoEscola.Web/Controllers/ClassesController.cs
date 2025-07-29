@@ -54,18 +54,24 @@ namespace SistemaGestaoEscola.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
-                var courses = await _courseRepository.GetAll()
+                var coursesModel = await _courseRepository.GetAll()
                                     .Where(c => c.IsActive)
                                     .OrderBy(c => c.Name)
                                     .ToListAsync();
 
-                ViewBag.Courses = new SelectList(courses, "Id", "Name", model.CourseId);
+                ViewBag.Courses = new SelectList(coursesModel, "Id", "Name", model.CourseId);
                 TempData["ToastError"] = "Houve um erro.";
                 return View(model);
             }
 
             if (model.StartingDate > model.EndingDate)
             {
+                var coursesDate = await _courseRepository.GetAll()
+                                    .Where(c => c.IsActive)
+                                    .OrderBy(c => c.Name)
+                                    .ToListAsync();
+
+                ViewBag.Courses = new SelectList(coursesDate, "Id", "Name", model.CourseId);
                 TempData["ToastError"] = "A data de início deve ser antes da data de fim.";
                 return View(model);
             }
@@ -97,11 +103,22 @@ namespace SistemaGestaoEscola.Web.Controllers
                 }
                 catch (Exception)
                 {
+                    var coursesDuration = await _courseRepository.GetAll()
+                                    .Where(c => c.IsActive)
+                                    .OrderBy(c => c.Name)
+                                    .ToListAsync();
+
+                    ViewBag.Courses = new SelectList(coursesDuration, "Id", "Name", model.CourseId);
                     TempData["ToastError"] = "Erro ao criar turma.";
                     return View(model);
                 }
             }
+            var courses = await _courseRepository.GetAll()
+                                    .Where(c => c.IsActive)
+                                    .OrderBy(c => c.Name)
+                                    .ToListAsync();
 
+            ViewBag.Courses = new SelectList(courses, "Id", "Name", model.CourseId);
             TempData["ToastError"] = "Tempo insuficiente para a duração do curso";
             return View(model);
         }

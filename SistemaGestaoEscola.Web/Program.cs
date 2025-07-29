@@ -10,6 +10,7 @@ using SistemaGestaoEscola.Web.Helpers;
 using SistemaGestaoEscola.Web.Helpers.Interfaces;
 using SistemaGestaoEscola.Web.Models;
 using System.Text;
+using Syncfusion.Licensing;
 
 namespace SistemaGestaoEscola.Web
 {
@@ -18,6 +19,16 @@ namespace SistemaGestaoEscola.Web
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            #region Syncfusion
+
+            var syncfusionLicense = builder.Configuration["Syncfusion:LicenseKey"];
+            if (!string.IsNullOrWhiteSpace(syncfusionLicense))
+            {
+                SyncfusionLicenseProvider.RegisterLicense(syncfusionLicense);
+            }
+
+            #endregion
 
             #region DataContext
 
@@ -40,47 +51,46 @@ namespace SistemaGestaoEscola.Web
             })
             .AddEntityFrameworkStores<DataContext>()
             .AddDefaultTokenProviders();
-
             #endregion
 
-            #region JWT
+            #region JWT Authentication
 
             builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
             var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>();
 
-            builder.Services.AddAuthentication()
-            .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
                 {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = jwtSettings.Issuer,
-                    ValidAudience = jwtSettings.Audience,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key))
-                };
-
-                options.Events = new JwtBearerEvents
-                {
-                    OnChallenge = context =>
+                    options.TokenValidationParameters = new TokenValidationParameters
                     {
-                        context.HandleResponse();
-                        context.Response.StatusCode = 401;
-                        context.Response.ContentType = "application/json";
-                        var result = System.Text.Json.JsonSerializer.Serialize(new
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = jwtSettings?.Issuer,
+                        ValidAudience = jwtSettings?.Audience,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings?.Key ?? "fallback_key"))
+                    };
+
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnChallenge = context =>
                         {
-                            message = "Token não encontrado"
-                        });
-                        return context.Response.WriteAsync(result);
-                    }
-                };
-            });
+                            context.HandleResponse();
+                            context.Response.StatusCode = 401;
+                            context.Response.ContentType = "application/json";
+                            var result = System.Text.Json.JsonSerializer.Serialize(new
+                            {
+                                message = "Token não encontrado"
+                            });
+                            return context.Response.WriteAsync(result);
+                        }
+                    };
+                });
 
             #endregion
 
-            #region Services
+            #region Services & Repositories
 
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
@@ -94,11 +104,17 @@ namespace SistemaGestaoEscola.Web
 
             builder.Services.AddTransient<SeedDb>();
             builder.Services.AddScoped<IUserHelper, UserHelper>();
+
             builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("Email"));
             builder.Services.AddScoped<IMailHelper, MailHelper>();
 
+            #endregion
+
+            #region MVC + API + Swagger
+
             builder.Services.AddControllersWithViews();
-            builder.Services.AddControllers(); // For the API
+            builder.Services.AddControllers();
+
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c =>
             {
@@ -116,22 +132,24 @@ namespace SistemaGestaoEscola.Web
                 c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
                 {
                     {
-                new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-                {
-                    Reference = new Microsoft.OpenApi.Models.OpenApiReference
-                    {
-                        Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
-                        Id = "bearer"
-                    }
-                },
+                        new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                        {
+                            Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                            {
+                                Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
                         Array.Empty<string>()
                     }
                 });
-             });
+            });
 
             #endregion
 
             var app = builder.Build();
+
+            #region Middleware
 
             if (!app.Environment.IsDevelopment())
             {
@@ -140,14 +158,6 @@ namespace SistemaGestaoEscola.Web
             }
 
             app.UseStatusCodePagesWithReExecute("/Error/{0}");
-
-            app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "ETEMB API V1");
-                c.RoutePrefix = "swagger";
-            });
-
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
@@ -155,6 +165,13 @@ namespace SistemaGestaoEscola.Web
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "ETEMB API V1");
+                c.RoutePrefix = "swagger";
+            });
 
             app.MapControllerRoute(
                 name: "default",
@@ -164,17 +181,16 @@ namespace SistemaGestaoEscola.Web
 
             RunSeeding(app);
 
+            #endregion
+
             app.Run();
         }
 
-        private static void RunSeeding(IHost host)
+        private static void RunSeeding(IHost app)
         {
-            var scopeFactory = host.Services.GetService<IServiceScopeFactory>();
-            using (var scope = scopeFactory.CreateScope())
-            {
-                var seeder = scope.ServiceProvider.GetService<SeedDb>();
-                seeder.SeedAsync().Wait();
-            }
+            using var scope = app.Services.CreateScope();
+            var seeder = scope.ServiceProvider.GetRequiredService<SeedDb>();
+            seeder.SeedAsync().Wait();
         }
     }
 }

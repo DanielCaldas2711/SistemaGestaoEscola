@@ -1,5 +1,6 @@
 ﻿@using SistemaGestaoEscola.Web.Data.Entities
 @using SistemaGestaoEscola.Web.Helpers.Interfaces
+@using Syncfusion.EJ2
 @inject IUserHelper UserHelper
 
 <!DOCTYPE html>
@@ -8,10 +9,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - ETEMB</title>
+
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/SistemaGestaoEscola.Web.styles.css" asp-append-version="true" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.syncfusion.com/ej2/29.1.33/material.css" />
 
     <style>
         .nav-item.dropdown:hover .dropdown-menu {
@@ -127,7 +130,7 @@
 
     <div class="container">
         <main role="main" class="pb-3">
-            @RenderBody()
+            @RenderBody() 
         </main>
     </div>
 
@@ -140,6 +143,8 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://cdn.syncfusion.com/ej2/29.1.33/dist/ej2.min.js"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
 
     <script>
@@ -226,10 +231,10 @@
 
         <div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModalLabel" aria-hidden="true">
             <div class="modal-dialog">
-                <div class="modal-content" id="alertModalContent">
-                </div>
+                <div class="modal-content" id="alertModalContent"></div>
             </div>
         </div>
     }
+    <ejs-scripts></ejs-scripts>
 </body>
 </html>
