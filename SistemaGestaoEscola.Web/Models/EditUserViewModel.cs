@@ -22,5 +22,8 @@ namespace SistemaGestaoEscola.Web.Models
 
         [Required]
         public string Role { get; set; } = string.Empty;
+
+        public IFormFile? RegistrationPhoto { get; set; }
+        public string? RegistrationPhotoPath { get; set; }
     }
 }

@@ -13,8 +13,7 @@ namespace SistemaGestaoEscola.Web.Controllers
         private readonly IUserHelper _userHelper;
         private readonly IMailHelper _mailHelper;
 
-        public UsersController(IUserHelper userHelper,
-            IMailHelper mailHelper)
+        public UsersController(IUserHelper userHelper, IMailHelper mailHelper)
         {
             _userHelper = userHelper;
             _mailHelper = mailHelper;
@@ -25,16 +24,13 @@ namespace SistemaGestaoEscola.Web.Controllers
             int pageSize = 10;
 
             var users = await _userHelper.GetAllUsersAsync();
-
             var userRoles = new List<UserRoleViewModel>();
 
             foreach (var user in users)
             {
                 var role = (await _userHelper.GetRolesAsync(user)).FirstOrDefault() ?? "Sem função";
-                if (
-                    (string.IsNullOrWhiteSpace(searchTerm) || user.FullName.StartsWith(searchTerm, StringComparison.OrdinalIgnoreCase)) &&
-                    (string.IsNullOrEmpty(selectedRole) || role == selectedRole)
-                )
+                if ((string.IsNullOrWhiteSpace(searchTerm) || user.FullName.StartsWith(searchTerm, StringComparison.OrdinalIgnoreCase)) &&
+                    (string.IsNullOrEmpty(selectedRole) || role == selectedRole))
                 {
                     userRoles.Add(new UserRoleViewModel
                     {
@@ -46,9 +42,8 @@ namespace SistemaGestaoEscola.Web.Controllers
                 }
             }
 
-            int totalUsers = userRoles.Count();
+            int totalUsers = userRoles.Count;
             var pagedUsers = userRoles.Skip((page - 1) * pageSize).Take(pageSize);
-
             var allRoles = Enum.GetNames(typeof(UserRole)).ToList();
 
             var model = new UserListViewModel
@@ -64,7 +59,6 @@ namespace SistemaGestaoEscola.Web.Controllers
             return View(model);
         }
 
-
         [HttpGet]
         public IActionResult Create()
         {
@@ -76,67 +70,82 @@ namespace SistemaGestaoEscola.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateUserViewModel model)
         {
+            if (model.Role == UserRole.Student.ToString() && model.RegistrationPhoto == null)
+            {
+                ModelState.AddModelError("RegistrationPhoto", "Foto de registro é obrigatória para estudantes.");
+            }
+
             if (!ModelState.IsValid)
             {
-                TempData["ToastError"] = "There was an error.";
+                TempData["ToastError"] = "Erro ao criar usuário.";
                 ViewBag.Roles = Enum.GetNames(typeof(UserRole)).ToList();
                 return View(model);
             }
 
-            var existingUser = await _userHelper.GetUserByEmailAsync(model.Email);
-            if (existingUser != null)
+            try
             {
-                TempData["ToastError"] = "This email is already registered";
-                ViewBag.Roles = Enum.GetNames(typeof(UserRole)).ToList();
-                return View(model);
-            }
-
-            var user = new User
-            {
-                FirstName = model.FirstName,
-                LastName = model.LastName,
-                Email = model.Email,
-                UserName = model.Email
-            };
-
-            var result = await _userHelper.AddUserAsync(user, model.Password);
-
-            if (!result.Succeeded)
-            {
-                foreach (var error in result.Errors)
+                var existingUser = await _userHelper.GetUserByEmailAsync(model.Email);
+                if (existingUser != null)
                 {
-                    TempData["ToastError"] = $"Error: {error.Description}"; //TODO Change to a single error
+                    TempData["ToastError"] = "Este e-mail já está registrado.";
+                    ViewBag.Roles = Enum.GetNames(typeof(UserRole)).ToList();
+                    return View(model);
                 }
 
-                ViewBag.Roles = Enum.GetNames(typeof(UserRole)).ToList();
-                return View(model);
+                var user = new User
+                {
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                    Email = model.Email,
+                    UserName = model.Email
+                };
+
+                var generatedPassword = GenerateRandomPassword();
+                var result = await _userHelper.AddUserAsync(user, generatedPassword);
+
+                if (!result.Succeeded)
+                {
+                    TempData["ToastError"] = result.Errors.FirstOrDefault()?.Description ?? "Erro desconhecido.";
+                    ViewBag.Roles = Enum.GetNames(typeof(UserRole)).ToList();
+                    return View(model);
+                }
+
+                await _userHelper.AddUserToRoleAsync(user, model.Role);
+
+                if (model.Role == UserRole.Student.ToString() && model.RegistrationPhoto != null)
+                {
+                    var fileName = $"{Guid.NewGuid()}{Path.GetExtension(model.RegistrationPhoto.FileName)}";
+                    var folder = Path.Combine("wwwroot", "images", "registration");
+                    Directory.CreateDirectory(folder);
+                    var filePath = Path.Combine(folder, fileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await model.RegistrationPhoto.CopyToAsync(stream);
+                    }
+
+                    user.RegistrationPhotoPath = $"/images/registration/{fileName}";
+                    await _userHelper.UpdateUserAsync(user);
+                }
+
+                var token = await _userHelper.GenerateEmailConfirmationTokenAsync(user);
+                var confirmationLink = Url.Action("ConfirmEmail", "Account", new { email = user.Email, token }, protocol: HttpContext.Request.Scheme);
+
+                var emailBody = $@"<h3>Welcome to ETEMB</h3>
+                    <p>Hello {user.FirstName},</p>
+                    <p>Your password is: {generatedPassword}</p>
+                    <p>Your account was created successfully. Click below to activate it:</p>
+                    <p><a href='{confirmationLink}'>Confirm Account</a></p>";
+
+                var emailResult = _mailHelper.SendEmail(user.Email, "Account Activation", emailBody);
+
+                TempData["ToastSuccess"] = emailResult.IsSuccess
+                    ? "Usuário criado e e-mail enviado."
+                    : "Usuário criado, mas erro ao enviar e-mail.";
             }
-
-            await _userHelper.AddUserToRoleAsync(user, model.Role);
-
-            var token = await _userHelper.GenerateEmailConfirmationTokenAsync(user);
-
-            var confirmationLink = Url.Action(
-                "ConfirmEmail",
-                "Account",
-                new { email = user.Email, token = token },
-                protocol: HttpContext.Request.Scheme);
-
-            var emailBody = $@"
-            <h3>Welcome to ETEMB</h3>
-            <p>Hello {user.FirstName},</p>
-            <p>Your account was created  successfully. To activate it, click in the link down bellow:</p>
-            <p><a href='{confirmationLink}'>Confirm Account</a></p>";
-
-            var response = _mailHelper.SendEmail(user.Email, "Account Activation", emailBody);
-
-            if (response.IsSuccess)
+            catch (Exception ex)
             {
-                TempData["ToastSuccess"] = "User created successfully and activation email sent!";
-            }
-            else
-            {
-                TempData["ToastError"] = "User created successfully but there was a problem with the email.";
+                TempData["ToastError"] = $"Erro inesperado: {ex.Message}";
             }
 
             return RedirectToAction(nameof(Index));
@@ -145,16 +154,10 @@ namespace SistemaGestaoEscola.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(string id)
         {
-            if (string.IsNullOrEmpty(id))
-            {
-                return NotFound();
-            }
+            if (string.IsNullOrEmpty(id)) return NotFound();
 
             var user = await _userHelper.GetUserByIdAsync(id);
-            if (user == null)
-            {
-                return NotFound();
-            }
+            if (user == null) return NotFound();
 
             var roles = await _userHelper.GetRolesAsync(user);
             var currentRole = roles.FirstOrDefault() ?? "";
@@ -165,7 +168,8 @@ namespace SistemaGestaoEscola.Web.Controllers
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Email = user.Email,
-                Role = currentRole
+                Role = currentRole,
+                RegistrationPhotoPath = user.RegistrationPhotoPath
             };
 
             ViewBag.Roles = Enum.GetNames(typeof(UserRole)).ToList();
@@ -176,56 +180,78 @@ namespace SistemaGestaoEscola.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(EditUserViewModel model)
         {
+            if (model.Role == UserRole.Student.ToString() && model.RegistrationPhoto == null && string.IsNullOrEmpty(model.RegistrationPhotoPath))
+            {
+                ModelState.AddModelError("RegistrationPhoto", "Foto de registro é obrigatória para estudantes.");
+            }
+
             if (!ModelState.IsValid)
             {
-                TempData["ToastError"] = "Invalid form submission.";
+                TempData["ToastError"] = "Erro ao editar usuário.";
                 ViewBag.Roles = Enum.GetNames(typeof(UserRole)).ToList();
                 return View(model);
             }
 
-            var user = await _userHelper.GetUserByIdAsync(model.Id);
-            if (user == null)
+            try
             {
-                TempData["ToastError"] = "User not found.";
-                return RedirectToAction(nameof(Index));
-            }
-            
-            user.FirstName = model.FirstName;
-            user.LastName = model.LastName;
-            user.Email = model.Email;
-            user.UserName = model.Email;
-            
-            var currentRoles = await _userHelper.GetRolesAsync(user);
-            var currentRole = currentRoles.FirstOrDefault();
-
-            if (currentRole != model.Role)
-            {
-                if (!string.IsNullOrEmpty(currentRole))
+                var user = await _userHelper.GetUserByIdAsync(model.Id);
+                if (user == null)
                 {
-                    var response = await _userHelper.RemoveFromRoleAsync(user, currentRole);
-
-                    if (!response.Succeeded) 
-                    {
-                        TempData["ToastError"] = "Error when removing from role.";
-                    }
+                    TempData["ToastError"] = "Usuário não encontrado.";
+                    return RedirectToAction(nameof(Index));
                 }
 
-                await _userHelper.AddUserToRoleAsync(user, model.Role);
+                user.FirstName = model.FirstName;
+                user.LastName = model.LastName;
+                user.Email = model.Email;
+                user.UserName = model.Email;
+
+                var currentRoles = await _userHelper.GetRolesAsync(user);
+                var currentRole = currentRoles.FirstOrDefault();
+
+                if (currentRole != model.Role)
+                {
+                    if (!string.IsNullOrEmpty(currentRole))
+                    {
+                        await _userHelper.RemoveFromRoleAsync(user, currentRole);
+                    }
+                    await _userHelper.AddUserToRoleAsync(user, model.Role);
+                }
+
+                if (model.Role == UserRole.Student.ToString() && model.RegistrationPhoto != null)
+                {
+                    if (!string.IsNullOrEmpty(user.RegistrationPhotoPath))
+                    {
+                        var oldPath = Path.Combine("wwwroot", user.RegistrationPhotoPath.TrimStart('/'));
+                        if (System.IO.File.Exists(oldPath))
+                        {
+                            System.IO.File.Delete(oldPath);
+                        }
+                    }
+
+                    var fileName = $"{Guid.NewGuid()}{Path.GetExtension(model.RegistrationPhoto.FileName)}";
+                    var folder = Path.Combine("wwwroot", "images", "registration");
+                    Directory.CreateDirectory(folder);
+                    var filePath = Path.Combine(folder, fileName);
+
+                    using var stream = new FileStream(filePath, FileMode.Create);
+                    await model.RegistrationPhoto.CopyToAsync(stream);
+
+                    user.RegistrationPhotoPath = $"/images/registration/{fileName}";
+                }
+
+                var result = await _userHelper.UpdateUserAsync(user);
+
+                TempData["ToastSuccess"] = result.Succeeded
+                    ? "Usuário atualizado com sucesso."
+                    : "Erro ao atualizar usuário.";
+            }
+            catch (Exception ex)
+            {
+                TempData["ToastError"] = $"Erro inesperado ao editar: {ex.Message}";
             }
 
-            var result = await _userHelper.UpdateUserAsync(user);
-
-            if (result.Succeeded)
-            {
-                TempData["ToastSuccess"] = "User updated successfully.";
-                return RedirectToAction(nameof(Index));
-            }
-            else
-            {
-                TempData["ToastError"] = "There was a problem updating the user.";
-                ViewBag.Roles = Enum.GetNames(typeof(UserRole)).ToList();
-                return View(model);
-            }
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpGet]
@@ -240,18 +266,43 @@ namespace SistemaGestaoEscola.Web.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            var result = await _userHelper.DeleteUserAsync(user);
-
-            if (result.Succeeded)
+            try
             {
+                if (!string.IsNullOrEmpty(user.RegistrationPhotoPath))
+                {
+                    var registrationPath = Path.Combine("wwwroot", user.RegistrationPhotoPath.TrimStart('/'));
+                    if (System.IO.File.Exists(registrationPath))
+                    {
+                        System.IO.File.Delete(registrationPath);
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(user.DisplayProfilePicturePath))
+                {
+                    var profilePath = Path.Combine("wwwroot", user.DisplayProfilePicturePath.TrimStart('/'));
+                    if (System.IO.File.Exists(profilePath))
+                    {
+                        System.IO.File.Delete(profilePath);
+                    }
+                }
+
+                await _userHelper.DeleteUserAsync(user);
                 TempData["ToastSuccess"] = "Usuário excluído com sucesso.";
             }
-            else
+            catch
             {
-                TempData["ToastError"] = "Erro ao excluir usuário.";
-            }                
+                TempData["ToastError"] = "Erro ao excluir usuário, retire o usuário da turma e tente novamente.";
+            }
 
             return RedirectToAction(nameof(Index));
-        }     
+        }
+        private string GenerateRandomPassword(int length = 12)
+        {
+            const string validChars = "ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz0123456789!@$?_-";
+            var random = new Random();
+            return new string(Enumerable.Repeat(validChars, length)
+                .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+
     }
 }

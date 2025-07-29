@@ -9,7 +9,7 @@
 
 <div class="row">
     <div class="col-md-6">
-        <form asp-action="Create" method="post">
+        <form asp-action="Create" method="post" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <div class="form-group mb-3">
@@ -30,18 +30,18 @@
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
 
-            <div class="form-group mb-3">
-                <label asp-for="Password" class="form-label"></label>
-                <input asp-for="Password" class="form-control" type="password" />
-                <span asp-validation-for="Password" class="text-danger"></span>
-            </div>
-
             <div class="form-group mb-4">
                 <label asp-for="Role" class="form-label">Função</label>
-                <select asp-for="Role" class="form-select" asp-items="new SelectList(roles)">
+                <select asp-for="Role" class="form-select" asp-items="new SelectList(roles)" id="Role">
                     <option value="">-- Selecione uma função --</option>
                 </select>
                 <span asp-validation-for="Role" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-4" id="photoUploadGroup" style="display: none;">
+                <label asp-for="RegistrationPhoto" class="form-label">Foto de Registro (obrigatória para estudantes)</label>
+                <input asp-for="RegistrationPhoto" type="file" class="form-control" accept="image/*" />
+                <span asp-validation-for="RegistrationPhoto" class="text-danger"></span>
             </div>
 
             <div class="form-group">
@@ -53,7 +53,19 @@
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        const roleSelect = document.getElementById("Role");
+        const photoGroup = document.getElementById("photoUploadGroup");
+
+        function togglePhotoGroup() {
+            const selectedRole = roleSelect.value;
+            photoGroup.style.display = selectedRole === "Student" ? "block" : "none";
+        }
+
+        roleSelect.addEventListener("change", togglePhotoGroup);
+
+        window.addEventListener("DOMContentLoaded", togglePhotoGroup);
+    </script>
 }

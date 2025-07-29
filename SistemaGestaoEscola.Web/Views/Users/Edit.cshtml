@@ -2,11 +2,12 @@
 
 @{
     ViewData["Title"] = "Editar Usuário";
+    var roles = ViewBag.Roles as List<string> ?? new List<string>();
 }
 
 <h2>Editar Usuário</h2>
 
-<form asp-action="Edit" method="post">
+<form asp-action="Edit" method="post" enctype="multipart/form-data">
     <input type="hidden" asp-for="Id" />
 
     <div class="mb-3">
@@ -28,11 +29,25 @@
     </div>
 
     <div class="mb-3">
-        <label asp-for="Role" class="form-label"></label>
-        <select asp-for="Role" class="form-select" asp-items="new SelectList(ViewBag.Roles)">
+        <label asp-for="Role" class="form-label">Função</label>
+        <select asp-for="Role" class="form-select" asp-items="new SelectList(roles)" id="Role">
             <option value="">Selecione uma função</option>
         </select>
         <span asp-validation-for="Role" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3" id="photoUploadGroup" style="display:none;">
+        <label asp-for="RegistrationPhoto" class="form-label">Foto de Registro (somente para estudantes)</label>
+        <input asp-for="RegistrationPhoto" type="file" class="form-control" accept="image/*" />
+        <span asp-validation-for="RegistrationPhoto" class="text-danger"></span>
+
+        @if (!string.IsNullOrEmpty(Model.RegistrationPhotoPath))
+        {
+            <div class="mt-2">
+                <strong>Atual:</strong><br />
+                <img src="@Model.RegistrationPhotoPath" alt="Foto atual" class="img-thumbnail" width="150" />
+            </div>
+        }
     </div>
 
     <button type="submit" class="btn btn-primary">Salvar</button>
@@ -41,4 +56,14 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        function togglePhotoField() {
+            const selectedRole = document.getElementById("Role").value;
+            const group = document.getElementById("photoUploadGroup");
+            group.style.display = selectedRole === "Student" ? "block" : "none";
+        }
+
+        document.getElementById("Role").addEventListener("change", togglePhotoField);
+        window.addEventListener("DOMContentLoaded", togglePhotoField);
+    </script>
 }

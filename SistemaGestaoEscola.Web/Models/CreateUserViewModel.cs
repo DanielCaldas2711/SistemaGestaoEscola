@@ -18,12 +18,9 @@ namespace SistemaGestaoEscola.Web.Models
         public string Email { get; set; }
 
         [Required]
-        [DataType(DataType.Password)]
-        [Display(Name = "Senha")]
-        public string Password { get; set; }
-
-        [Required]
         [Display(Name = "Função")]
         public string Role { get; set; }
+
+        public IFormFile? RegistrationPhoto { get; set; }
     }
 }

@@ -20,5 +20,7 @@ namespace SistemaGestaoEscola.Web.Data.Entities
             string.IsNullOrEmpty(ProfilePicturePath)
             ? "/images/defaultProfilePicture/default.jpg"
             : ProfilePicturePath;
+
+        public string? RegistrationPhotoPath { get; set; }
     }
 }

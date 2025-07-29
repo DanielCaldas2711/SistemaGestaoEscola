@@ -46,8 +46,7 @@ namespace SistemaGestaoEscola.Web.ApiControllers
                 {
                     cs.Id,
                     cs.FullName,
-                    cs.Email,
-                    cs.PhoneNumber
+                    cs.Email
                 });
 
             return Ok(students);
