@@ -11,6 +11,7 @@ using SistemaGestaoEscola.Web.Helpers.Interfaces;
 using SistemaGestaoEscola.Web.Models;
 using System.Text;
 using Syncfusion.Licensing;
+using SuperShop.Helpers;
 
 namespace SistemaGestaoEscola.Web
 {
@@ -107,6 +108,8 @@ namespace SistemaGestaoEscola.Web
 
             builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("Email"));
             builder.Services.AddScoped<IMailHelper, MailHelper>();
+
+            builder.Services.AddScoped<IBlobHelper, BlobHelper>();
 
             #endregion
 

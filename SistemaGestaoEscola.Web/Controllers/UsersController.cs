@@ -12,11 +12,13 @@ namespace SistemaGestaoEscola.Web.Controllers
     {
         private readonly IUserHelper _userHelper;
         private readonly IMailHelper _mailHelper;
+        private readonly IBlobHelper _blobHelper;
 
-        public UsersController(IUserHelper userHelper, IMailHelper mailHelper)
+        public UsersController(IUserHelper userHelper, IMailHelper mailHelper, IBlobHelper blobHelper)
         {
             _userHelper = userHelper;
             _mailHelper = mailHelper;
+            _blobHelper = blobHelper;
         }
 
         public async Task<IActionResult> Index(string? searchTerm, string? selectedRole, int page = 1)
@@ -114,17 +116,8 @@ namespace SistemaGestaoEscola.Web.Controllers
 
                 if (model.Role == UserRole.Student.ToString() && model.RegistrationPhoto != null)
                 {
-                    var fileName = $"{Guid.NewGuid()}{Path.GetExtension(model.RegistrationPhoto.FileName)}";
-                    var folder = Path.Combine("wwwroot", "images", "registration");
-                    Directory.CreateDirectory(folder);
-                    var filePath = Path.Combine(folder, fileName);
-
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await model.RegistrationPhoto.CopyToAsync(stream);
-                    }
-
-                    user.RegistrationPhotoPath = $"/images/registration/{fileName}";
+                    var blobId = await _blobHelper.UploadBlobAsync(model.RegistrationPhoto, "registerpictures");
+                    user.RegistrationPhotoPath = $"https://sistemagestaoescola.blob.core.windows.net/registerpictures/{blobId}";
                     await _userHelper.UpdateUserAsync(user);
                 }
 
@@ -220,24 +213,8 @@ namespace SistemaGestaoEscola.Web.Controllers
 
                 if (model.Role == UserRole.Student.ToString() && model.RegistrationPhoto != null)
                 {
-                    if (!string.IsNullOrEmpty(user.RegistrationPhotoPath))
-                    {
-                        var oldPath = Path.Combine("wwwroot", user.RegistrationPhotoPath.TrimStart('/'));
-                        if (System.IO.File.Exists(oldPath))
-                        {
-                            System.IO.File.Delete(oldPath);
-                        }
-                    }
-
-                    var fileName = $"{Guid.NewGuid()}{Path.GetExtension(model.RegistrationPhoto.FileName)}";
-                    var folder = Path.Combine("wwwroot", "images", "registration");
-                    Directory.CreateDirectory(folder);
-                    var filePath = Path.Combine(folder, fileName);
-
-                    using var stream = new FileStream(filePath, FileMode.Create);
-                    await model.RegistrationPhoto.CopyToAsync(stream);
-
-                    user.RegistrationPhotoPath = $"/images/registration/{fileName}";
+                    var blobId = await _blobHelper.UploadBlobAsync(model.RegistrationPhoto, "registerpictures");
+                    user.RegistrationPhotoPath = $"https://sistemagestaoescola.blob.core.windows.net/registerpictures/{blobId}";
                 }
 
                 var result = await _userHelper.UpdateUserAsync(user);
@@ -270,20 +247,9 @@ namespace SistemaGestaoEscola.Web.Controllers
             {
                 if (!string.IsNullOrEmpty(user.RegistrationPhotoPath))
                 {
-                    var registrationPath = Path.Combine("wwwroot", user.RegistrationPhotoPath.TrimStart('/'));
-                    if (System.IO.File.Exists(registrationPath))
-                    {
-                        System.IO.File.Delete(registrationPath);
-                    }
-                }
-
-                if (!string.IsNullOrEmpty(user.DisplayProfilePicturePath))
-                {
-                    var profilePath = Path.Combine("wwwroot", user.DisplayProfilePicturePath.TrimStart('/'));
-                    if (System.IO.File.Exists(profilePath))
-                    {
-                        System.IO.File.Delete(profilePath);
-                    }
+                    var uri = new Uri(user.RegistrationPhotoPath);
+                    var blobName = Path.GetFileName(uri.LocalPath);
+                    await _blobHelper.DeleteBlobAsync(blobName, "registerpictures");
                 }
 
                 await _userHelper.DeleteUserAsync(user);
@@ -296,6 +262,7 @@ namespace SistemaGestaoEscola.Web.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
         private string GenerateRandomPassword(int length = 12)
         {
             const string validChars = "ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz0123456789!@$?_-";
@@ -303,6 +270,5 @@ namespace SistemaGestaoEscola.Web.Controllers
             return new string(Enumerable.Repeat(validChars, length)
                 .Select(s => s[random.Next(s.Length)]).ToArray());
         }
-
     }
 }

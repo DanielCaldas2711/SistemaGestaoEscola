@@ -8,12 +8,15 @@ namespace SistemaGestaoEscola.Web.Controllers
     {
         private readonly IUserHelper _userHelper;
         private readonly IMailHelper _mailHelper;
+        private readonly IBlobHelper _blobHelper;
 
         public AccountController(IUserHelper userHelper,
-            IMailHelper mailHelper)
+            IMailHelper mailHelper,
+            IBlobHelper blobHelper)
         {
             _userHelper = userHelper;
             _mailHelper = mailHelper;
+            _blobHelper = blobHelper;
         }
 
         public IActionResult Login()
@@ -162,47 +165,39 @@ namespace SistemaGestaoEscola.Web.Controllers
             }
 
             var user = await _userHelper.GetUserByEmailAsync(User.Identity.Name);
+            if (user == null)
+            {
+                TempData["ToastError"] = "User not found.";
+                return RedirectToAction("EditProfile");
+            }
 
             user.FirstName = model.FirstName;
             user.LastName = model.LastName;
 
             if (model.ProfilePicture != null && model.ProfilePicture.Length > 0)
             {
-                if (model.ProfilePicture.Length > 2 * 1024 * 1024) //Checks the size of the file
+                if (model.ProfilePicture.Length > 2 * 1024 * 1024)
                 {
                     TempData["ToastError"] = "The profile picture must be 2MB or less.";
                     return View(model);
                 }
 
                 var allowedContentTypes = new[] { "image/jpeg", "image/png", "image/webp" };
-                if (!allowedContentTypes.Contains(model.ProfilePicture.ContentType)) //Makes sure that the file is a image
+                if (!allowedContentTypes.Contains(model.ProfilePicture.ContentType))
                 {
                     TempData["ToastError"] = "Only JPEG, PNG or WEBP images are allowed.";
                     return View(model);
                 }
 
-                string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/profilePictures");
-                Directory.CreateDirectory(uploadsFolder); // Makes sure the directory exists
-
                 if (!string.IsNullOrEmpty(user.ProfilePicturePath) &&
                     !user.ProfilePicturePath.Contains("/images/defaultProfilePicture/"))
                 {
-                    string oldFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", user.ProfilePicturePath.TrimStart('/'));
-                    if (System.IO.File.Exists(oldFilePath))
-                    {
-                        System.IO.File.Delete(oldFilePath);
-                    }
+                    var oldBlobName = Path.GetFileName(user.ProfilePicturePath);
+                    await _blobHelper.DeleteBlobAsync(oldBlobName, "profilepictures");
                 }
 
-                string uniqueFileName = $"{Guid.NewGuid()}_{model.ProfilePicture.FileName}";
-                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-                using (var stream = new FileStream(filePath, FileMode.Create)) //TODO Upload images to blob
-                {
-                    await model.ProfilePicture.CopyToAsync(stream);
-                }
-
-                user.ProfilePicturePath = $"/images/profilePictures/{uniqueFileName}";
+                var blobName = await _blobHelper.UploadBlobAsync(model.ProfilePicture, "profilepictures");
+                user.ProfilePicturePath = $"https://sistemagestaoescola.blob.core.windows.net/profilepictures/{blobName}";
             }
 
             await _userHelper.UpdateUserAsync(user);
@@ -210,6 +205,7 @@ namespace SistemaGestaoEscola.Web.Controllers
             TempData["ToastSuccess"] = "Profile updated successfully";
             return RedirectToAction("EditProfile");
         }
+
 
 
         [HttpGet]

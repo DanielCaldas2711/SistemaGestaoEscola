@@ -28,6 +28,7 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.4" />
     <PackageReference Include="Syncfusion.EJ2.AspNet.Core" Version="30.1.42" />
     <PackageReference Include="System.Text.Json" Version="8.0.5" />
+    <PackageReference Include="WindowsAzure.Storage" Version="9.3.3" />
   </ItemGroup>
 
   <ItemGroup>
