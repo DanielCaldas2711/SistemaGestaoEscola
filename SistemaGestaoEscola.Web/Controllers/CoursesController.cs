@@ -36,7 +36,7 @@ namespace SistemaGestaoEscola.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
-                TempData["ToastError"] = "Please correct the form errors.";
+                TempData["ToastError"] = "Favor corrigir erros do formulário.";
                 return View(model);
             }
 
@@ -45,7 +45,7 @@ namespace SistemaGestaoEscola.Web.Controllers
 
             if (exists)
             {
-                TempData["ToastError"] = $"A course named \"{model.Name}\" already exists.";
+                TempData["ToastError"] = $"O curso de nome \"{model.Name}\" já existe.";
                 return View(model);
             }
 
@@ -54,12 +54,12 @@ namespace SistemaGestaoEscola.Web.Controllers
             try
             {
                 await _courseRepository.CreateAsync(model);
-                TempData["ToastSuccess"] = "Course created successfully!";
+                TempData["ToastSuccess"] = "Curso criado com sucesso.";
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception)
             {
-                TempData["ToastError"] = "An error occurred while creating the course.";
+                TempData["ToastError"] = "Ocorreu um erro ao criar o curso.";
                 return View(model);
             }
         }
@@ -72,18 +72,18 @@ namespace SistemaGestaoEscola.Web.Controllers
             var course = await _courseRepository.GetByIdAsync(id);
             if (course == null)
             {
-                TempData["ToastError"] = "Course not found.";
+                TempData["ToastError"] = "Curso não encontrado.";
                 return RedirectToAction(nameof(Index));
             }
 
             try
             {
                 await _courseRepository.DeleteAsync(course);
-                TempData["ToastSuccess"] = "Course deleted successfully!";
+                TempData["ToastSuccess"] = "Curso apagado com sucesso.";
             }
             catch (Exception)
             {
-                TempData["ToastError"] = "An error occurred while trying to delete the course.";
+                TempData["ToastError"] = "Ocorreu um erro ao apagar o curso.";
             }
 
             return RedirectToAction(nameof(Index));
@@ -96,7 +96,7 @@ namespace SistemaGestaoEscola.Web.Controllers
             var course = await _courseRepository.GetByIdAsync(id);
             if (course == null)
             {
-                TempData["ToastError"] = "Course not found.";
+                TempData["ToastError"] = "Curso não encontrado.";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -110,14 +110,14 @@ namespace SistemaGestaoEscola.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
-                TempData["ToastError"] = "There are validation errors in the form.";
+                TempData["ToastError"] = "Existem erros de validção no formulário.";
                 return View(model);
             }
 
             var existing = await _courseRepository.GetByIdAsync(model.Id);
             if (existing == null)
             {
-                TempData["ToastError"] = "Course not found.";
+                TempData["ToastError"] = "Curso não encontrado.";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -127,7 +127,7 @@ namespace SistemaGestaoEscola.Web.Controllers
 
             if (duplicate != null)
             {
-                TempData["ToastError"] = $"A course with the name \"{model.Name}\" already exists.";
+                TempData["ToastError"] = $"O curso com o nome \"{model.Name}\" já existe.";
                 return View(model);
             }
 
@@ -139,12 +139,12 @@ namespace SistemaGestaoEscola.Web.Controllers
                 existing.IsActive = model.IsActive;
 
                 await _courseRepository.UpdateAsync(existing);
-                TempData["ToastSuccess"] = "Course updated successfully!";
+                TempData["ToastSuccess"] = "Curso atualizado com sucesso";
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception)
             {
-                TempData["ToastError"] = "An error occurred while updating the course.";
+                TempData["ToastError"] = "Ocorreu um erro ao atualizar o curso.";
                 return View(model);
             }
         }

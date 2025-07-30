@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SistemaGestaoEscola.Web.Data.Repositories.Interfaces;
+using SistemaGestaoEscola.Web.Helpers.Interfaces;
 using SistemaGestaoEscola.Web.Models;
 using System.Diagnostics;
 
@@ -9,14 +10,18 @@ public class HomeController : Controller
     private readonly ILogger<HomeController> _logger;
     private readonly IClassRepository _classRepository;
     private readonly ICourseRepository _courseRepository;
+    private readonly ITimeZoneHelper _timeZoneHelper;
 
-    public HomeController(ILogger<HomeController> logger,
+    public HomeController(
+        ILogger<HomeController> logger,
         IClassRepository classRepository,
-        ICourseRepository courseRepository)
+        ICourseRepository courseRepository,
+        ITimeZoneHelper timeZoneHelper)
     {
         _logger = logger;
         _classRepository = classRepository;
         _courseRepository = courseRepository;
+        _timeZoneHelper = timeZoneHelper;
     }
 
     public IActionResult Index()
@@ -58,8 +63,10 @@ public class HomeController : Controller
     [HttpGet]
     public async Task<IActionResult> Classes()
     {
+        var now = DateTime.UtcNow;
+
         var classes = await _classRepository.GetAll()
-            .Where(c => c.StartingDate > DateTime.UtcNow)
+            .Where(c => c.StartingDate > now)
             .Include(c => c.Course)
             .OrderBy(c => c.Name)
             .ToListAsync();
@@ -70,8 +77,8 @@ public class HomeController : Controller
             ClassName = c.Name,
             CourseType = c.Course.Type,
             CourseName = c.Course.Name,
-            StartingDate = c.StartingDate,
-            EndingDate = c.EndingDate,
+            StartingDate = _timeZoneHelper.ConvertUtcToLisbon(c.StartingDate),
+            EndingDate = _timeZoneHelper.ConvertUtcToLisbon(c.EndingDate),
             DurationHours = c.Course.Duration,
             Shift = c.Shift
         }).ToList();
@@ -98,8 +105,8 @@ public class HomeController : Controller
         {
             ClassName = turma.Name,
             CourseName = turma.Course.Name,
-            StartingDate = turma.StartingDate,
-            EndingDate = turma.EndingDate,
+            StartingDate = _timeZoneHelper.ConvertUtcToLisbon(turma.StartingDate),
+            EndingDate = _timeZoneHelper.ConvertUtcToLisbon(turma.EndingDate),
             Duration = turma.Course.Duration,
             Shift = turma.Shift,
             Subjects = turma.Course.CourseDisciplines
@@ -112,7 +119,6 @@ public class HomeController : Controller
 
         return View(model);
     }
-
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()

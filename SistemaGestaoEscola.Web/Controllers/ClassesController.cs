@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using SistemaGestaoEscola.Web.Data.Entities;
 using SistemaGestaoEscola.Web.Data.Enums;
 using SistemaGestaoEscola.Web.Data.Repositories.Interfaces;
+using SistemaGestaoEscola.Web.Helpers;
 using SistemaGestaoEscola.Web.Helpers.Interfaces;
 using SistemaGestaoEscola.Web.Models;
 
@@ -16,18 +17,21 @@ namespace SistemaGestaoEscola.Web.Controllers
         private readonly ICourseRepository _courseRepository;
         private readonly IClassProfessorsRepository _classProfessorsRepository;
         private readonly IUserHelper _userHelper;
+        private readonly ITimeZoneHelper _timeZoneHelper;
 
         public ClassesController(IClassRepository classRepository,
             IClassStudentsRepository classStudentsRepository,
             ICourseRepository courseRepository,
             IClassProfessorsRepository classProfessorsRepository,
-            IUserHelper userHelper)
+            IUserHelper userHelper,
+            ITimeZoneHelper timeZoneHelper)
         {
             _classRepository = classRepository;
             _classStudentsRepository = classStudentsRepository;
             _courseRepository = courseRepository;
             _classProfessorsRepository = classProfessorsRepository;
             _userHelper = userHelper;
+            _timeZoneHelper = timeZoneHelper;
         }
 
         public IActionResult Index()
@@ -63,6 +67,9 @@ namespace SistemaGestaoEscola.Web.Controllers
                 TempData["ToastError"] = "Houve um erro.";
                 return View(model);
             }
+
+            model.StartingDate = _timeZoneHelper.ConvertLisbonToUtc(model.StartingDate);
+            model.EndingDate = _timeZoneHelper.ConvertLisbonToUtc(model.EndingDate);
 
             if (model.StartingDate > model.EndingDate)
             {
@@ -136,6 +143,9 @@ namespace SistemaGestaoEscola.Web.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
+            turma.StartingDate = _timeZoneHelper.ConvertUtcToLisbon(turma.StartingDate);
+            turma.EndingDate = _timeZoneHelper.ConvertUtcToLisbon(turma.EndingDate);
+
             var courses = await _courseRepository.GetAll()
                                 .Where(c => c.IsActive)
                                 .OrderBy(c => c.Name)
@@ -164,6 +174,9 @@ namespace SistemaGestaoEscola.Web.Controllers
                 TempData["ToastError"] = "Verifique os campos antes de salvar.";
                 return View(model);
             }
+
+            model.StartingDate = _timeZoneHelper.ConvertLisbonToUtc(model.StartingDate);
+            model.EndingDate = _timeZoneHelper.ConvertLisbonToUtc(model.EndingDate);
 
             if (model.EndingDate < model.StartingDate)
             {
@@ -205,7 +218,6 @@ namespace SistemaGestaoEscola.Web.Controllers
             TempData["ToastError"] = "Tempo insuficiente para a duração do curso";
             return View(model);
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]

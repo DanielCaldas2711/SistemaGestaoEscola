@@ -10,11 +10,16 @@ public class AlertsController : Controller
 {
     private readonly IAlertRepository _alertRepository;
     private readonly IUserHelper _userHelper;
+    private readonly ITimeZoneHelper _timeZoneHelper;
 
-    public AlertsController(IAlertRepository alertRepository, IUserHelper userHelper)
+    public AlertsController(
+        IAlertRepository alertRepository,
+        IUserHelper userHelper,
+        ITimeZoneHelper timeZoneHelper)
     {
         _alertRepository = alertRepository;
         _userHelper = userHelper;
+        _timeZoneHelper = timeZoneHelper;
     }
 
     [Authorize(Roles = "Secretary")]
@@ -45,6 +50,7 @@ public class AlertsController : Controller
             Description = model.Description,
             FromUserId = fromUser.Id,
             ToUserId = adminUser.Id,
+            CreatedAt = DateTime.UtcNow
         };
 
         await _alertRepository.CreateAsync(alert);
@@ -71,7 +77,15 @@ public class AlertsController : Controller
             : alertsQuery.OrderByDescending(a => a.CreatedAt);
 
         var totalItems = alertsQuery.Count();
-        var alerts = alertsQuery.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+        var alerts = alertsQuery
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+
+        foreach (var alert in alerts)
+        {
+            alert.CreatedAt = _timeZoneHelper.ConvertUtcToLisbon(alert.CreatedAt);
+        }
 
         ViewBag.CurrentFilter = filter;
         ViewBag.CurrentSort = sort;
@@ -80,7 +94,6 @@ public class AlertsController : Controller
 
         return View(alerts);
     }
-
 
     [HttpPost]
     [Authorize(Roles = "Admin")]

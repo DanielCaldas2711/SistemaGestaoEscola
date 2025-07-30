@@ -110,6 +110,7 @@ namespace SistemaGestaoEscola.Web
             builder.Services.AddScoped<IMailHelper, MailHelper>();
 
             builder.Services.AddScoped<IBlobHelper, BlobHelper>();
+            builder.Services.AddScoped<ITimeZoneHelper, TimeZoneHelper>();
 
             #endregion
 
@@ -189,11 +190,15 @@ namespace SistemaGestaoEscola.Web
             app.Run();
         }
 
+        #region Seeder
+
         private static void RunSeeding(IHost app)
         {
             using var scope = app.Services.CreateScope();
             var seeder = scope.ServiceProvider.GetRequiredService<SeedDb>();
             seeder.SeedAsync().Wait();
         }
+
+        #endregion
     }
 }

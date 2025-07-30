@@ -36,7 +36,7 @@ namespace SistemaGestaoEscola.Web.Controllers
 
             if (course == null)
             {
-                TempData["ToastError"] = "Course not found.";
+                TempData["ToastError"] = "Curso não encontrado";
                 return RedirectToAction("Index");
             }
 
@@ -73,7 +73,7 @@ namespace SistemaGestaoEscola.Web.Controllers
             var course = await _courseRepository.GetByIdAsync(courseId);
             if (course == null)
             {
-                TempData["ToastError"] = "Course not found.";
+                TempData["ToastError"] = "Curso não encontrado";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -109,12 +109,12 @@ namespace SistemaGestaoEscola.Web.Controllers
                     }
                 }
 
-                TempData["ToastSuccess"] = "Subjects updated successfully!";
+                TempData["ToastSuccess"] = "Disciplinas atualizadas com sucesso.";
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception)
             {
-                TempData["ToastError"] = "An error occurred while updating subjects.";
+                TempData["ToastError"] = "Ocorreu um erro ao atualizar as disciplinas.";
                 return RedirectToAction(nameof(ManageSubjects), new { courseId });
             }
         }
@@ -127,7 +127,7 @@ namespace SistemaGestaoEscola.Web.Controllers
 
             if (course == null)
             {
-                TempData["ToastError"] = "Course not found.";
+                TempData["ToastError"] = "Curso não encontrado";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -289,7 +289,7 @@ namespace SistemaGestaoEscola.Web.Controllers
                     }
                     else
                     {
-                        TempData["ToastError"] = "The maximum duration of the course has been exceeded";
+                        TempData["ToastError"] = "A duração máxima do curso foi excedida.";
                         ViewBag.AssignedHours = maxHour - subject.Hours;
                     }
                 }
