@@ -115,7 +115,7 @@ namespace SistemaGestaoEscola.Web.Controllers
 
             if (subject == null)
             {
-                TempData["ToastError"] = "Subject not found.";
+                TempData["ToastError"] = "Disciplina não encontrada.";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -128,14 +128,14 @@ namespace SistemaGestaoEscola.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
-                TempData["ToastError"] = "Please correct the errors in the form.";
+                TempData["ToastError"] = "Favor corrigir os error do formulário.";
                 return View(model);
             }
 
             var existingSubject = await _subjectRepository.GetByIdAsync(model.Id);
             if (existingSubject == null)
             {
-                TempData["ToastError"] = "Subject not found.";
+                TempData["ToastError"] = "Disciplina não encontrada.";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -144,7 +144,7 @@ namespace SistemaGestaoEscola.Web.Controllers
                 var subjectWithSameCode = await _subjectRepository.GetByCodeAsync(model.Code);
                 if (subjectWithSameCode != null)
                 {
-                    TempData["ToastError"] = $"Another subject with this code already exists: {subjectWithSameCode.Code} - {subjectWithSameCode.Name}";
+                    TempData["ToastError"] = $"Outra disciplina com esse código já existe: {subjectWithSameCode.Code} - {subjectWithSameCode.Name}";
                     return View(model);
                 }
             }

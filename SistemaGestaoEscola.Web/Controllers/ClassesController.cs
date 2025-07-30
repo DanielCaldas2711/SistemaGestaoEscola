@@ -551,17 +551,24 @@ namespace SistemaGestaoEscola.Web.Controllers
             var existingAssignment = await _classStudentsRepository.GetAll()
                 .FirstOrDefaultAsync(cs => cs.ClassId == model.ClassId && cs.StudentId == model.StudentId);
 
-            if (model.Assign && existingAssignment == null)
+            try
             {
-                await _classStudentsRepository.CreateAsync(new ClassStudents
+                if (model.Assign && existingAssignment == null)
                 {
-                    ClassId = model.ClassId,
-                    StudentId = model.StudentId
-                });
+                    await _classStudentsRepository.CreateAsync(new ClassStudents
+                    {
+                        ClassId = model.ClassId,
+                        StudentId = model.StudentId
+                    });
+                }
+                else if (!model.Assign && existingAssignment != null)
+                {
+                    await _classStudentsRepository.DeleteAsync(existingAssignment);
+                }
             }
-            else if (!model.Assign && existingAssignment != null)
+            catch (Exception)
             {
-                await _classStudentsRepository.DeleteAsync(existingAssignment);
+                return BadRequest("Erro ao atualizar estudante.");
             }
 
             var updatedStudents = await GetFilteredStudents(model.ClassId);

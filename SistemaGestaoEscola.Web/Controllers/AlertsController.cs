@@ -53,7 +53,15 @@ public class AlertsController : Controller
             CreatedAt = DateTime.UtcNow
         };
 
-        await _alertRepository.CreateAsync(alert);
+        try
+        {
+            await _alertRepository.CreateAsync(alert);
+        }
+        catch (Exception)
+        {
+            TempData["ToastError"] = "Ocorreu um problema ao criar o alerta.";
+            return RedirectToAction("Index", "Home");
+        }
 
         TempData["ToastSuccess"] = "Alerta enviado ao administrador.";
         return RedirectToAction("Index", "Home");
@@ -102,10 +110,16 @@ public class AlertsController : Controller
         var alert = await _alertRepository.GetByIdAsync(id);
         if (alert != null)
         {
-            alert.IsRead = true;
-            await _alertRepository.UpdateAsync(alert);
+            try
+            {
+                await _alertRepository.UpdateAsync(alert);
+                alert.IsRead = true;
+            }
+            catch (Exception)
+            {
+                TempData["ToastError"] = "Ocorreu um prolema ao marcar como lido.";
+            }          
         }
-
         return RedirectToAction("MyAlerts");
     }
 
@@ -153,7 +167,14 @@ public class AlertsController : Controller
             IsRead = false
         };
 
-        await _alertRepository.CreateAsync(alert);
-        return Ok(new { message = "Alerta enviado com sucesso!" });
+        try
+        {
+            await _alertRepository.CreateAsync(alert);
+        }
+        catch (Exception)
+        {
+            return BadRequest(new { message = "Ocorreu um problema ao enviar o alerta." });
+        }
+        return Ok(new { message = "Alerta enviado com sucesso." });
     }
 }

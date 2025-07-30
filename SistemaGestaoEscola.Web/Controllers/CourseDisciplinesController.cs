@@ -280,12 +280,20 @@ namespace SistemaGestaoEscola.Web.Controllers
 
                     if (maxHour <= course.Duration)
                     {
-                        await _courseDisciplinesRepository.CreateAsync(new CourseDisciplines
+                        try
                         {
-                            CourseId = model.CourseId,
-                            SubjectId = model.SubjectId
-                        });
-                        ViewBag.AssignedHours = maxHour;
+                            await _courseDisciplinesRepository.CreateAsync(new CourseDisciplines
+                            {
+                                CourseId = model.CourseId,
+                                SubjectId = model.SubjectId
+                            });
+                            ViewBag.AssignedHours = maxHour;
+                        }
+                        catch (Exception)
+                        {
+                            TempData["ToastError"] = "Erro ao associar disciplina.";
+                            ViewBag.AssignedHours = maxHour - subject.Hours;
+                        }
                     }
                     else
                     {
