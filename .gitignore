@@ -365,3 +365,5 @@ FodyWeavers.xsd
 /SistemaGestaoEscola.Web/wwwroot/images/profilePictures/a88cfaf1-fcda-493f-b8c7-c615775bcacd_ramen.png
 /SistemaGestaoEscola.Web/wwwroot/images/profilePictures
 /SistemaGestaoEscola.Web/wwwroot/images/registration
+/SistemaGestaoEscola.Web/appsettings.Development.json
+/SistemaGestaoEscola.Web/appsettings.production.json
