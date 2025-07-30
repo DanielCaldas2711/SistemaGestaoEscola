@@ -33,7 +33,17 @@ namespace SistemaGestaoEscola.Web
 
             #region DataContext
 
-            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+            string connectionString;
+
+            if (builder.Environment.IsDevelopment())
+            {
+                connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+            }
+            else
+            {
+                connectionString = builder.Configuration.GetConnectionString("SomeeConnection");
+            }
+
             builder.Services.AddDbContext<DataContext>(options =>
                 options.UseSqlServer(connectionString));
 
@@ -150,6 +160,12 @@ namespace SistemaGestaoEscola.Web
             });
 
             #endregion
+
+            builder.Configuration
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false)
+                .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
+                .AddEnvironmentVariables();
 
             var app = builder.Build();
 

@@ -112,8 +112,8 @@ public class AlertsController : Controller
         {
             try
             {
-                await _alertRepository.UpdateAsync(alert);
                 alert.IsRead = true;
+                await _alertRepository.UpdateAsync(alert);
             }
             catch (Exception)
             {
