@@ -3,6 +3,14 @@
 @using Syncfusion.EJ2
 @inject IUserHelper UserHelper
 
+@{
+    int unreadAlerts = 0;
+    if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+    {
+        unreadAlerts = await UserHelper.GetUnreadAlertsCountAsync(User);
+    }
+}
+
 <!DOCTYPE html>
 <html lang="pt">
 <head>
@@ -188,7 +196,25 @@
                 <ul id="navRight">
                     @if (User.Identity.IsAuthenticated)
                     {
+                        @if(User.IsInRole("Admin")){
+                            
+                            <li class="nav-item position-relative">
+                                <a asp-controller="Alerts" asp-action="MyAlerts" class="nav-link text-light position-relative" title="Meus Alertas">
+                                    <i class="bi bi-bell-fill" style=" font-size: 1.2rem;"></i>
+
+                                    @if (unreadAlerts > 0)
+                                    {
+                                        <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"
+                                              style="width: 10px; height: 10px;">
+                                        </span>
+                                    }
+                                </a>
+                            </li>
+
+                        }
+
                         <li>@await Component.InvokeAsync("UserSummary")</li>
+
                     }
                     else
                     {
@@ -231,6 +257,13 @@
                 }
             });
         }
+        function loadAlertForm() {
+            $('#alertModalContent').html('<div class="modal-body text-center"><div class="spinner-border"></div></div>');
+            $.get('/Alerts/CreateFromPopup', function (data) {
+                $('#alertModalContent').html(data);
+            });
+        }
+
     </script>
 
     @await Html.PartialAsync("_Toast")
@@ -250,7 +283,6 @@
             </div>
         </div>
     }
-
     <ejs-scripts></ejs-scripts>
 </body>
 </html>

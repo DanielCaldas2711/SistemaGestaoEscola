@@ -31,3 +31,43 @@
         <button type="submit" class="btn btn-primary">Enviar</button>
     </div>
 </form>
+
+<script>
+    $(document).off('submit', '#alertForm').on('submit', '#alertForm', function (e) {
+        e.preventDefault();
+
+        const data = {
+            Title: $('#alertTitle').val(),
+            Description: $('#alertDescription').val(),
+            ReceiverId: $('#alertReceiver').val()
+        };
+
+        $.ajax({
+            url: '/Alerts/CreateFromPopup',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            success: function (res) {
+                if (typeof showToast === "function") {
+                    showToast('success', res.message || "Alerta enviado com sucesso!");
+                }
+
+                $('#alertForm')[0].reset();
+
+                setTimeout(() => {
+                    $('#alertModal').modal('hide');
+                }, 1000);
+            },
+            error: function (xhr) {
+                let msg = "Erro ao enviar o alerta.";
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    msg = xhr.responseJSON.message;
+                }
+
+                if (typeof showToast === "function") {
+                    showToast('error', msg);
+                }
+            }
+        });
+    });
+</script>

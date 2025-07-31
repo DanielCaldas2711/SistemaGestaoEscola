@@ -1,59 +1,57 @@
-﻿@if (TempData["ToastSuccess"] != null || TempData["ToastError"] != null)
-{
-    <div class="toast-container position-fixed top-0 end-0 p-4" id="toastContainer" style="z-index: 1060;">
-        @if (TempData["ToastSuccess"] != null)
-        {
-            <div id="toastSuccess" class="custom-toast custom-toast-success shadow">
-                <div class="d-flex align-items-center">
-                    <div class="toast-content">
-                        @TempData["ToastSuccess"]
-                    </div>
-                    <button type="button" class="btn-close ms-auto" aria-label="Fechar" onclick="this.closest('.custom-toast').remove();"></button>
+﻿<div class="toast-container position-fixed top-0 end-0 p-4" id="toastContainer" style="z-index: 1060;">
+    @if (TempData["ToastSuccess"] != null)
+    {
+        <div class="custom-toast custom-toast-success shadow">
+            <div class="d-flex align-items-center">
+                <div class="toast-content">
+                    @TempData["ToastSuccess"]
                 </div>
+                <button type="button" class="btn-close ms-auto" aria-label="Fechar"
+                        onclick="this.closest('.custom-toast').remove();"></button>
             </div>
-        }
+        </div>
+    }
 
-        @if (TempData["ToastError"] != null)
-        {
-            <div id="toastError" class="custom-toast custom-toast-error shadow">
-                <div class="d-flex align-items-center">
-                    <div class="toast-content">
-                        @TempData["ToastError"]
-                    </div>
-                    <button type="button" class="btn-close ms-auto" aria-label="Fechar" onclick="this.closest('.custom-toast').remove();"></button>
+    @if (TempData["ToastError"] != null)
+    {
+        <div class="custom-toast custom-toast-error shadow">
+            <div class="d-flex align-items-center">
+                <div class="toast-content">
+                    @TempData["ToastError"]
                 </div>
+                <button type="button" class="btn-close ms-auto" aria-label="Fechar"
+                        onclick="this.closest('.custom-toast').remove();"></button>
             </div>
-        }
-    </div>
+        </div>
+    }
+</div>
 
-    <style>
-        .custom-toast {
-            border-radius: 12px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            color: #fff;
-            animation: slideIn 0.5s ease forwards;
-            display: flex;
-            align-items: center;
-            min-width: 300px;
-        }
+<style>
+    .custom-toast {
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        color: #fff;
+        animation: slideIn 0.5s ease forwards;
+        display: flex;
+        align-items: center;
+        min-width: 300px;
+    }
 
-        .custom-toast-success {
-            background-color: #198754; /* Bootstrap green */
-        }
+    .custom-toast-success {
+        background-color: #198754; /* Bootstrap green */
+    }
 
-        .custom-toast-error {
-            background-color: #dc3545; /* Bootstrap red */
-        }
+    .custom-toast-error {
+        background-color: #dc3545; /* Bootstrap red */
+    }
 
-        .toast-content {
-            flex: 1;
-        }
+    .toast-content {
+        flex: 1;
+    }
 
-        @@keyframes slideIn {
-            from
-
-        {
+    @@keyframes slideIn {
+        from {
             opacity: 0;
             transform: translateX(100%);
         }
@@ -62,35 +60,46 @@
             opacity: 1;
             transform: translateX(0);
         }
+    }
+</style>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const hideToast = (el) => {
+            el.style.transition = "opacity 0.4s ease";
+            el.style.opacity = 0;
+            setTimeout(() => el.remove(), 400);
+        };
+
+        const toastContainer = document.getElementById("toastContainer");
+        const navbar = document.querySelector(".navbar");
+
+        if (navbar && toastContainer) {
+            const navbarHeight = navbar.offsetHeight;
+            toastContainer.style.top = `${navbarHeight + 5}px`;
         }
-    </style>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const hideToast = (el) => {
-                el.style.transition = "opacity 0.4s ease";
-                el.style.opacity = 0;
-                setTimeout(() => el.remove(), 400);
-            };
-
-            const toastContainer = document.getElementById("toastContainer");
-            const navbar = document.querySelector(".navbar");
-
-            if (navbar && toastContainer) {
-                const navbarHeight = navbar.offsetHeight;
-                toastContainer.style.top = `${navbarHeight + 5}px`;
-            }
-
-            const toastSuccess = document.getElementById("toastSuccess");
-            const toastError = document.getElementById("toastError");
-
-            if (toastSuccess) {
-                setTimeout(() => hideToast(toastSuccess), 5000);
-            }
-            if (toastError) {
-                setTimeout(() => hideToast(toastError), 5000);
-            }
+        // Fecha toasts existentes automaticamente
+        document.querySelectorAll(".custom-toast").forEach(toast => {
+            setTimeout(() => hideToast(toast), 5000);
         });
-    </script>
-}
+
+        // Função global para criar toast dinamicamente
+        window.showToast = function (type, message) {
+            const toastClass = type === 'success' ? 'custom-toast-success' : 'custom-toast-error';
+            const toastHtml = `
+                <div class="custom-toast ${toastClass} shadow">
+                    <div class="d-flex align-items-center">
+                        <div class="toast-content">${message}</div>
+                        <button type="button" class="btn-close ms-auto" aria-label="Fechar"
+                                onclick="this.closest('.custom-toast').remove();"></button>
+                    </div>
+                </div>
+            `;
+            toastContainer.insertAdjacentHTML("beforeend", toastHtml);
+
+            const newToast = toastContainer.lastElementChild;
+            setTimeout(() => hideToast(newToast), 5000);
+        };
+    });
+</script>
