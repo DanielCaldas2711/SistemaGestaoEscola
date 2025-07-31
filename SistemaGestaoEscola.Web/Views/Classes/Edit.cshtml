@@ -34,13 +34,23 @@
 
     <div class="mb-3">
         <label asp-for="StartingDate" class="form-label">Data de Início</label>
-        <input asp-for="StartingDate" class="form-control" type="date" />
+        <ejs-datepicker id="StartingDate"
+                        name="StartingDate"
+                        format="dd/MM/yyyy"
+                        value="@(Model?.StartingDate)"
+                        placeholder="Escolha a data">
+        </ejs-datepicker>
         <span asp-validation-for="StartingDate" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
         <label asp-for="EndingDate" class="form-label">Data de Término</label>
-        <input asp-for="EndingDate" class="form-control" type="date" />
+        <ejs-datepicker id="EndingDate"
+                        name="EndingDate"
+                        format="dd/MM/yyyy"
+                        value="@(Model?.EndingDate)"
+                        placeholder="Escolha a data">
+        </ejs-datepicker>
         <span asp-validation-for="EndingDate" class="text-danger"></span>
     </div>
 

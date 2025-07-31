@@ -10,6 +10,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - ETEMB</title>
 
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Work+Sans:400,600">
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/SistemaGestaoEscola.Web.styles.css" asp-append-version="true" />
@@ -17,13 +18,90 @@
     <link rel="stylesheet" href="https://cdn.syncfusion.com/ej2/29.1.33/material.css" />
 
     <style>
-        .nav-item.dropdown:hover .dropdown-menu {
-            display: block;
+        body {
+            margin: 0;
+            background: #dedcd7;
+            font-family: 'Work Sans', sans-serif;
+            font-weight: 800;
         }
 
-        .dropdown-menu a:hover {
-            background-color: #f8f9fa;
+        footer{
+            background: #1B3C53;
         }
+
+        header {
+            background: #1B3C53;
+            padding: 10px 0;
+        }
+
+        .header-container {
+            width: 80%;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo a {
+            color: #D2C1B6;
+            font-size: 24px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        nav {
+            width: 90%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+
+        #navLeft {
+            justify-content: flex-start;
+        }
+
+        #navRight {
+            justify-content: flex-end;
+        }
+
+        nav li {
+            margin-left: 30px;
+            margin-top: 10px;
+            position: relative;
+        }
+
+        nav a{
+            color: #D2C1B6 !important;
+            text-decoration: none;
+            text-transform: uppercase;
+            font-size: 13px;
+        }
+
+            nav a:hover {
+                color: #456882 !important;
+            }
+
+            nav a::before {
+                content: '';
+                display: block;
+                height: 5px;
+                background-color: #679ac7;
+                position: absolute;
+                top: 0;
+                width: 0%;
+                transition: all ease-in-out 250ms;
+            }
+
+            nav a:hover::before {
+                width: 50%;
+            }
+
 
         .alert-float-button {
             position: fixed;
@@ -42,101 +120,73 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-controller="Home" asp-action="Index">ETEMB</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-
-                <div class="collapse navbar-collapse d-sm-inline-flex justify-content-between" id="navbarSupportedContent">
-                    <ul class="navbar-nav flex-grow-1">
-                        @if (!User.Identity.IsAuthenticated)
-                        {
-                            <li class="nav-item"><a class="nav-link text-dark" asp-controller="Home" asp-action="Index">Início</a></li>
-                            <li class="nav-item"><a class="nav-link text-dark" asp-controller="Home" asp-action="Courses">Nossos Cursos</a></li>
-                            <li class="nav-item"><a class="nav-link text-dark" asp-controller="Home" asp-action="Classes">Nossas Turmas</a></li>
-                        }
-                        else
-                        {
-                            <li class="nav-item dropdown d-flex align-items-center">
-                                <a class="nav-link dropdown-toggle text-dark ms-1" href="#" id="menuDropdown" role="button" data-bs-toggle="dropdown">Menu</a>
-                                <ul class="dropdown-menu" aria-labelledby="menuDropdown">
-                                    <li><a class="dropdown-item" asp-controller="Home" asp-action="Index">Início</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Home" asp-action="Courses">Nossos Cursos</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Home" asp-action="Classes">Nossas Turmas</a></li>
-                                </ul>
-                            </li>
-                        }
-
-                        @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
-                        {
-                            <li class="nav-item"><a class="nav-link text-dark" asp-controller="Users" asp-action="Index">Usuários</a></li>
-                            <li class="nav-item"><a class="nav-link text-dark" asp-controller="Subjects" asp-action="Index">Disciplinas</a></li>
-                            <li class="nav-item"><a class="nav-link text-dark" asp-controller="Courses" asp-action="Index">Cursos</a></li>
-                        }
-
-                        @if (User.Identity.IsAuthenticated && User.IsInRole("Secretary"))
-                        {
-                            <li class="nav-item"><a class="nav-link text-dark" asp-controller="CourseDisciplines" asp-action="Index">Courses</a></li>
-                            <li class="nav-item"><a class="nav-link text-dark" asp-controller="Classes" asp-action="Index">Classes</a></li>
-                        }
-
-                        @if (User.Identity.IsAuthenticated && User.IsInRole("Professor"))
-                        {
-                            <li class="nav-item"><a class="nav-link text-dark" asp-controller="StudentGrades" asp-action="Index">Turmas</a></li>
-                        }
-
-                        @if (User.Identity.IsAuthenticated && User.IsInRole("Student"))
-                        {
-                            <li class="nav-item"><a class="nav-link text-dark" asp-controller="StudentGrades" asp-action="MyGrades">Notas</a></li>
-                        }
-                    </ul>
-
-                    <ul class="navbar-nav">
-                        @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
-                        {
-                            var alerts = await UserHelper.GetUnreadAlertsCountAsync(User);
-                            <li class="nav-item me-2 position-relative">
-                                <a class="nav-link text-dark position-relative" asp-controller="Alerts" asp-action="MyAlerts" title="Alertas não lidos">
-                                    <i class="bi bi-bell-fill"></i>
-                                    @if (alerts > 0)
-                                    {
-                                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                            @alerts
-                                        </span>
-                                    }
-                                </a>
-                            </li>
-                        }
-                        @if (User.Identity.IsAuthenticated)
-                        {
-                            <li class="nav-item d-flex align-items-center me-2">
-                                @await Component.InvokeAsync("UserSummary")
-                            </li>
-                            <li class="nav-item"><a class="nav-link text-dark" asp-controller="Account" asp-action="ChangePassword">Mudar Passe</a></li>
-                            <li class="nav-item"><a class="nav-link text-dark" asp-controller="Account" asp-action="EditProfile">Editar Perfil</a></li>
-                            <li class="nav-item"><a href="#" class="nav-link text-dark" onclick="confirmLogout(event)">Logout</a></li>
-                        }
-                        else
-                        {
-                            <li class="nav-item"><a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Login</a></li>
-                        }
-                    </ul>
-                </div>
+        <div class="header-container">
+            <div class="logo">
+                <a asp-controller="Home" asp-action="Index">Dinel</a>
             </div>
-        </nav>
+            <nav>
+                <ul class="navLeft">
+                    @if (!User.Identity.IsAuthenticated)
+                    {
+                        <li><a asp-controller="Home" asp-action="Index">Início</a></li>
+                        <li><a asp-controller="Home" asp-action="Courses">Cursos</a></li>
+                        <li><a asp-controller="Home" asp-action="Classes">Turmas</a></li>
+                    }
+                    else
+                    {
+                        <li>
+                            <a type="button" class="menu" id="menuDropdown" data-bs-toggle="dropdown" aria-expanded="false">Menu</a>
+                            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="profileDropdown">
+                                <li><a class="dropdown-item" asp-controller="Home" asp-action="Index">Início</a></li>
+                                <li><a class="dropdown-item" asp-controller="Home" asp-action="Courses">Cursos</a></li>
+                                <li><a class="dropdown-item" asp-controller="Home" asp-action="Classes">Turmas</a></li>
+                            </ul>
+                        </li>
+                    }
+                    @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                    {
+                        <li><a asp-controller="Users" asp-action="Index">Usuários</a></li>
+                        <li><a asp-controller="Subjects" asp-action="Index">Disciplinas</a></li>
+                        <li><a asp-controller="Courses" asp-action="Index">Cursos</a></li>
+                    }
+                    @if (User.Identity.IsAuthenticated && User.IsInRole("Secretary"))
+                    {
+                        <li><a asp-controller="CourseDisciplines" asp-action="Index">Cursos e Disciplinas</a></li>
+                        <li><a asp-controller="Classes" asp-action="Index">Turmas</a></li>
+                    }
+                    @if (User.Identity.IsAuthenticated && User.IsInRole("Professor"))
+                    {
+                        <li><a asp-controller="StudentGrades" asp-action="Index">Notas</a></li>
+                    }
+                    @if (User.Identity.IsAuthenticated && User.IsInRole("Student"))
+                    {
+                        <li><a asp-controller="StudentGrades" asp-action="MyGrades">Minhas Notas</a></li>
+                    }
+                    </ul>
+
+                <ul class="navRight">
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <li>@await Component.InvokeAsync("UserSummary")</li>
+                    }
+                    else
+                    {
+                        <li><a asp-controller="Account" asp-action="Login">Login</a></li>
+                    }
+                </ul>
+            </nav>
+        </div>
     </header>
 
     <div class="container">
         <main role="main" class="pb-3">
-            @RenderBody() 
+            @RenderBody()
         </main>
     </div>
 
     <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; @DateTime.Now.Year - SistemaGestaoEscola.Web - <a asp-controller="Home" asp-action="Privacy">Privacidade</a>
+        <div class="container" style="color:#D2C1B6;">
+            &copy; @DateTime.Now.Year - DINEL - <a asp-controller="Home" asp-action="Privacy">Privacidade</a>
         </div>
     </footer>
 
@@ -158,64 +208,6 @@
                 }
             });
         }
-
-        function loadAlertForm() {
-            $('#alertModalContent').html('<div class="modal-body text-center"><div class="spinner-border"></div></div>');
-            $.get('/Alerts/CreateFromPopup', function (data) {
-                $('#alertModalContent').html(data);
-            });
-        }
-
-        function showToast(type, message) {
-            const toastType = type === 'success' ? 'bg-success text-white' : 'bg-danger text-white';
-            const toastHtml = `
-                <div class="toast align-items-center ${toastType} border-0" role="alert" aria-live="assertive" aria-atomic="true">
-                    <div class="d-flex">
-                        <div class="toast-body">${message}</div>
-                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fechar"></button>
-                    </div>
-                </div>
-            `;
-
-            const toastContainer = $('#toast-container');
-            if (!toastContainer.length) {
-                $('body').append('<div id="toast-container" class="toast-container position-fixed bottom-0 end-0 p-3"></div>');
-            }
-
-            $('#toast-container').append(toastHtml);
-            const toastElement = $('#toast-container .toast').last();
-            const toast = new bootstrap.Toast(toastElement[0]);
-            toast.show();
-            toastElement.on('hidden.bs.toast', function () { $(this).remove(); });
-        }
-
-        $(document).on('submit', '#alertForm', function (e) {
-            e.preventDefault();
-            const data = {
-                Title: $('#alertTitle').val(),
-                Description: $('#alertDescription').val(),
-                ReceiverId: $('#alertReceiver').val()
-            };
-
-            $.ajax({
-                url: '/Alerts/CreateFromPopup',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify(data),
-                success: function (res) {
-                    showToast('success', res.message || "Alerta enviado com sucesso.");
-                    $('#alertForm')[0].reset();
-                    setTimeout(() => $('#alertModal').modal('hide'), 1000);
-                },
-                error: function (xhr) {
-                    let msg = "Erro ao enviar o alerta.";
-                    if (xhr.responseJSON && xhr.responseJSON.message) {
-                        msg = xhr.responseJSON.message;
-                    }
-                    showToast('error', msg);
-                }
-            });
-        });
     </script>
 
     @await Html.PartialAsync("_Toast")

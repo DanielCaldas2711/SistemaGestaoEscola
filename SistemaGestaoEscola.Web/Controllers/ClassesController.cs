@@ -522,6 +522,12 @@ namespace SistemaGestaoEscola.Web.Controllers
                 .OrderBy(c => c.Name)
                 .ToListAsync();
 
+            foreach (var c in classes)
+            {
+                c.StartingDate = _timeZoneHelper.ConvertUtcToLisbon(c.StartingDate);
+                c.EndingDate = _timeZoneHelper.ConvertUtcToLisbon(c.EndingDate);
+            }
+
             return PartialView("_ClassListPartial", classes);
         }
 

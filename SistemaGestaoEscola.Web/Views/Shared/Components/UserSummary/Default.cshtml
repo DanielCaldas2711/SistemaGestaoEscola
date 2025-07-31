@@ -1,6 +1,29 @@
 ﻿@model SistemaGestaoEscola.Web.Models.Components.UserSummaryViewModel
 
-<div class="d-flex align-items-center">
-    <img src="@Model.ProfilePicturePath" class="rounded-circle me-2" width="32" height="32" alt="Perfil" />
-    <span>@Model.Role</span>
+<style>
+    #profileDropdown img {
+        transition: 0.2s;
+    }
+
+    #profileDropdown:hover img {
+        opacity: 0.8;
+    }
+
+    button:hover {
+        color: #679ac7 !important;
+    }
+</style>
+
+<div class="dropdown">
+    <button style="color: #D2C1B6; font-weight: 800; font-family: 'Work Sans', sans-serif; font-size: 13px;" class="btn p-0 border-0 bg-transparent dropdown-toggle d-flex align-items-center" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+        <img src="@Model.ProfilePicturePath" class="rounded-circle me-2" width="32" height="32" alt="Perfil" />
+        @Model.Name
+    </button>
+    <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="profileDropdown">
+        <li><a class="dropdown-item" asp-controller="Account" asp-action="EditProfile">Editar Perfil</a></li>
+        <li><a class="dropdown-item" asp-controller="Account" asp-action="ChangePassword">Mudar Senha</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item" asp-controller="Account" asp-action="Logout">Logout</a></li>
+    </ul>
 </div>
+

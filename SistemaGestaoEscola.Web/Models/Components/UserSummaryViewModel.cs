@@ -2,8 +2,8 @@
 {
     public class UserSummaryViewModel
     {
-        public string Role { get; set; } = string.Empty;
-
         public string ProfilePicturePath { get; set; } = string.Empty;
+
+        public string Name { get; set; }
     }
 }

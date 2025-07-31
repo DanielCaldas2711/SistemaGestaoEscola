@@ -22,8 +22,13 @@
         {
             <img src="@Model.ExistingPicturePath" alt="Foto atual" width="100" class="mb-2 rounded" />
         }
-        <label asp-for="ProfilePicture"></label>
-        <input asp-for="ProfilePicture" type="file" class="form-control" accept="image/*" />
+        <label asp-for="ProfilePicture"></label>        
+        <ejs-uploader id="profileUploader"
+                      name="ProfilePicture"
+                      autoUpload="false"
+                      allowedExtensions=".jpg,.jpeg,.png"
+                      multiple="false">
+        </ejs-uploader>
     </div>
     <button type="submit" class="btn btn-primary mt-3">Salvar Alterações</button>
 </form>

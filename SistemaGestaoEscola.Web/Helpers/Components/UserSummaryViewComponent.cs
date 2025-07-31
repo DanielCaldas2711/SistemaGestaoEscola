@@ -16,11 +16,13 @@ namespace SistemaGestaoEscola.Web.Helpers.Components
         public async Task<IViewComponentResult> InvokeAsync()
         {
             var user = await _userHelper.GetUserByEmailAsync(User.Identity.Name);
-            var role = (await _userHelper.GetRolesAsync(user)).FirstOrDefault();
+
+            var role = await _userHelper.GetRolesAsync(user);
 
             var model = new UserSummaryViewModel
             {
-                Role = role,
+                Name = $"{user.FirstName.ToUpper()} - {role.FirstOrDefault().ToUpper()}",
+
                 ProfilePicturePath = string.IsNullOrEmpty(user.ProfilePicturePath)
                     ? "/images/defaultProfilePicture/default.jpg"
                     : user.ProfilePicturePath

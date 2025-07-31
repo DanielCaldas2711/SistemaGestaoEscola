@@ -40,7 +40,12 @@
 
             <div class="form-group mb-4" id="photoUploadGroup" style="display: none;">
                 <label asp-for="RegistrationPhoto" class="form-label">Foto de Registro (obrigatória para estudantes)</label>
-                <input asp-for="RegistrationPhoto" type="file" class="form-control" accept="image/*" />
+                <ejs-uploader id="registrationUploader"
+                              name="RegistrationPhoto"
+                              autoUpload="false"
+                              allowedExtensions=".jpg,.jpeg,.png"
+                              multiple="false">
+                </ejs-uploader>
                 <span asp-validation-for="RegistrationPhoto" class="text-danger"></span>
             </div>
 
