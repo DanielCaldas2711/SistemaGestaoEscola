@@ -1,8 +1,73 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Bem-vindo à Escola DINEL";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container mt-4">
+
+    <div class="row align-items-center mb-5">
+        <div class="col-md-6">
+            <h1 class="fw-bold text-primary">Bem-vindo à Escola DINEL</h1>
+            <p class="lead text-muted">
+                Formando profissionais preparados para o futuro, com cursos de alta qualidade e professores experientes.
+            </p>
+            <a class="btn btn-primary btn-lg me-2" asp-controller="Home" asp-action="Courses">Ver Cursos</a>
+            <a class="btn btn-outline-secondary btn-lg" asp-controller="Home" asp-action="Classes">Ver Turmas</a>
+        </div>
+        <div class="col-md-6 text-center">
+            <img src="https://images.pexels.com/photos/9572726/pexels-photo-9572726.jpeg"
+                 class="img-fluid rounded shadow" alt="Estudantes estudando" />
+        </div>
+    </div>
+
+    <div class="row text-center mb-5">
+        <div class="col-md-4 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <img src="https://images.pexels.com/photos/8197537/pexels-photo-8197537.jpeg" class="card-img-top" alt="Professores experientes">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold">Professores Experientes</h5>
+                    <p class="card-text text-muted">Nossa equipe de professores é altamente qualificada e comprometida com seu aprendizado.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <img src="https://images.pexels.com/photos/7988082/pexels-photo-7988082.jpeg" class="card-img-top" alt="Estrutura moderna">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold">Estrutura Moderna</h5>
+                    <p class="card-text text-muted">Salas de aula equipadas com tecnologia de ponta para melhor experiência de aprendizado.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b" class="card-img-top" alt="Formação profissional">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold">Formação Profissional</h5>
+                    <p class="card-text text-muted">Cursos direcionados ao mercado de trabalho com alta taxa de empregabilidade.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-light p-5 rounded shadow-sm text-center">
+        <h2 class="fw-bold text-primary">Pronto para começar sua jornada?</h2>
+        <p class="text-muted mb-4">Inscreva-se agora em um de nossos cursos e dê o primeiro passo para um futuro brilhante.</p>
+        <a href="mailto:dinel@yopmail.com" class="btn btn-outline-primary btn-lg">
+            <i class="bi bi-envelope-fill me-2"></i> Enviar Email
+        </a>
+    </div>
+
 </div>
+
+<style>
+    h1, h2 {
+        font-family: 'Work Sans', sans-serif;
+    }
+
+    .card-img-top {
+        height: 200px;
+        object-fit: cover;
+    }
+</style>
