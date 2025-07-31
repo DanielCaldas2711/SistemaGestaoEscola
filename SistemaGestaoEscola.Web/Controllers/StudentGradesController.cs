@@ -226,7 +226,11 @@ namespace SistemaGestaoEscola.Web.Controllers
         public async Task<IActionResult> MyGrades()
         {
             var user = await _userHelper.GetUserAsync(User);
-            if (user == null) return Unauthorized();
+            if (user == null)
+            {
+                TempData["ToastError"] = "Erro ao buscar aluno.";
+                return RedirectToAction("Index", "Home");
+            }
 
             var studentEntries = await _classStudentsRepository.GetAll()
                 .Where(cs => cs.StudentId == user.Id)
@@ -236,8 +240,8 @@ namespace SistemaGestaoEscola.Web.Controllers
 
             if (!studentEntries.Any())
             {
-                TempData["ToastError"] = "Erro ao encontrar notas.";
-                return NotFound();
+                TempData["ToastError"] = "Aluno ainda não inscrito em uma turma.";
+                return RedirectToAction("Index", "Home");
             }
 
             var classEntity = await _classRepository.GetAll()
@@ -249,7 +253,7 @@ namespace SistemaGestaoEscola.Web.Controllers
             if (classEntity == null)
             {
                 TempData["ToastError"] = "Erro ao encontrar a turma.";
-                return NotFound();
+                return RedirectToAction("Index", "Home");
             }
 
             var courseSubjects = classEntity.Course.CourseDisciplines.Select(cd => cd.Subject).ToList();

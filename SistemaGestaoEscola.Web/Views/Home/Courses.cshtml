@@ -26,17 +26,24 @@ else
                             <strong>Tipo:</strong> @course.CourseType <br />
                             <strong>Duração:</strong> @course.Duration horas
                         </p>
-                        <h6>Disciplinas:</h6>
-                        <ul class="list-unstyled mb-0">
-                            @foreach (var subject in topSubjects)
-                            {
-                                <li>• @subject.SubjectName (@subject.Hours horas)</li>
-                            }
-                            @if (remainingCount > 0)
-                            {
-                                <li class="text-muted">+ @remainingCount outras</li>
-                            }
-                        </ul>
+                        @if (topSubjects.Count > 0)
+                        {
+                            <h6>Disciplinas:</h6>
+                            <ul class="list-unstyled mb-0">
+                                @foreach (var subject in topSubjects)
+                                {
+                                    <li>• @subject.SubjectName (@subject.Hours horas)</li>
+                                }
+                                @if (remainingCount > 0)
+                                {
+                                    <li class="text-muted">+ @remainingCount outras</li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <h6>Sem disciplinas</h6>
+                        }
                     </div>
                 </div>
             </div>
