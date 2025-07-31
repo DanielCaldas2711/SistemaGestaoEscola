@@ -9,10 +9,10 @@ else
     <table class="table table-bordered table-striped">
         <thead class="table-light">
             <tr>
-                <th>Name</th>
-                <th>Type</th>
-                <th>Duration</th>
-                <th>Actions</th>
+                <th>Nome</th>
+                <th>Tipo</th>
+                <th>Duração</th>
+                <th>Ações</th>
             </tr>
         </thead>
         <tbody>
@@ -27,13 +27,13 @@ else
                            asp-action="ManageSubjects"
                            asp-route-courseId="@course.Id"
                            class="btn btn-sm btn-outline-primary">
-                            Manage Subjects
+                            Gerenciar Disciplinas
                         </a>
                         <a asp-controller="CourseDisciplines"
                            asp-action="Details"
                            asp-route-courseId="@course.Id"
                            class="btn btn-sm btn-outline-secondary">
-                            Details
+                            Detalhes
                         </a>
                     </td>
                 </tr>

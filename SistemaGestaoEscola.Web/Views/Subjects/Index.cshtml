@@ -5,27 +5,27 @@
 }
 
 <h2 class="d-flex justify-content-between align-items-center">
-    Subjects
-    <a asp-action="Create" class="btn btn-success">New Subject</a>
+    Disciplinas
+    <a asp-action="Create" class="btn btn-success">Nova Disciplina</a>
 </h2>
 
 <form method="get" class="row mb-3">
     <div class="col-md-6">
-        <input type="text" name="searchTerm" value="@Model.SearchTerm" class="form-control" placeholder="Search by name..." />
+        <input type="text" name="searchTerm" value="@Model.SearchTerm" class="form-control" placeholder="Buscar por nome..." />
     </div>
     <div class="col-md-2">
-        <button type="submit" class="btn btn-primary">Search</button>
+        <button type="submit" class="btn btn-primary">Buscar</button>
     </div>
 </form>
 
 <table class="table table-bordered table-striped">
     <thead class="table-light">
         <tr>
-            <th>Code</th>
-            <th>Name</th>
-            <th>Hours</th>
-            <th>Absence</th>
-            <th>Actions</th>
+            <th>Código</th>
+            <th>Nome</th>
+            <th>Horas</th>
+            <th>Faltas (horas)</th>
+            <th>Ações</th>
         </tr>
     </thead>
     <tbody>
@@ -37,8 +37,8 @@
                 <td>@subject.Hours</td>
                 <td>@subject.Absence</td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@subject.Id" class="btn btn-warning btn-sm">Edit</a>
-                    <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete(@subject.Id, '@subject.Name')">Delete</button>
+                    <a asp-action="Edit" asp-route-id="@subject.Id" class="btn btn-warning btn-sm">Editar</a>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete(@subject.Id, '@subject.Name')">Excluir</button>
                 </td>
             </tr>
         }

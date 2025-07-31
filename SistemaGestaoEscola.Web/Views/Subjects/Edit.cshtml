@@ -1,10 +1,10 @@
 ﻿@model SistemaGestaoEscola.Web.Data.Entities.Subject
 
 @{
-    ViewData["Title"] = "Edit Subject";
+    ViewData["Title"] = "Editar Disciplina";
 }
 
-<h2>Edit Subject</h2>
+<h2>Editar Disciplina</h2>
 
 <form asp-action="Edit" method="post" class="mt-4">
     @Html.AntiForgeryToken()
@@ -13,19 +13,19 @@
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
     <div class="form-group mb-3">
-        <label asp-for="Code" class="form-label">Code</label>
+        <label asp-for="Code" class="form-label">Código</label>
         <input asp-for="Code" class="form-control" />
         <span asp-validation-for="Code" class="text-danger"></span>
     </div>
 
     <div class="form-group mb-3">
-        <label asp-for="Name" class="form-label">Name</label>
+        <label asp-for="Name" class="form-label">Nome</label>
         <input asp-for="Name" class="form-control" />
         <span asp-validation-for="Name" class="text-danger"></span>
     </div>
 
     <div class="form-group mb-3">
-        <label asp-for="Hours" class="form-label">Hours</label>
+        <label asp-for="Hours" class="form-label">Horas</label>
         <select asp-for="Hours" class="form-select" id="Hours">
             <option value="">Select...</option>
             <option value="25">25</option>
@@ -35,14 +35,14 @@
     </div>
 
     <div class="form-group mb-3">
-        <label asp-for="Absence" class="form-label">Absence</label>
+        <label asp-for="Absence" class="form-label">Faltas (horas)</label>
         <input asp-for="Absence" class="form-control" id="Absence" readonly />
         <span asp-validation-for="Absence" class="text-danger"></span>
     </div>
 
     <div class="form-group mt-4">
-        <button type="submit" class="btn btn-primary">Save Changes</button>
-        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary">Salvar Mudanças</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
     </div>
 </form>
 

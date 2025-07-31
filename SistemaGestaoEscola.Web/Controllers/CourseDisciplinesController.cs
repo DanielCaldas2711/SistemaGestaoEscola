@@ -168,7 +168,7 @@ namespace SistemaGestaoEscola.Web.Controllers
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
                 var lowerTerm = searchTerm.Trim().ToLower();
-                query = query.Where(c => c.Name.ToLower().Contains(lowerTerm));
+                query = query.Where(c => c.Name.ToLower().StartsWith(lowerTerm));
             }
 
             if (!string.IsNullOrWhiteSpace(type))
