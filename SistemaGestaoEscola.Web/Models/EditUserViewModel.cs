@@ -8,11 +8,13 @@ namespace SistemaGestaoEscola.Web.Models
 
         [Required]
         [MaxLength(50)]
+        [RegularExpression(@"^[a-zA-ZÀ-ÿ\s]+$", ErrorMessage = "O nome deve conter apenas letras e espaços.")]
         [Display(Name = "First Name")]
         public string FirstName { get; set; } = string.Empty;
 
         [Required]
         [MaxLength(50)]
+        [RegularExpression(@"^[a-zA-ZÀ-ÿ\s]+$", ErrorMessage = "O nome deve conter apenas letras e espaços.")]
         [Display(Name = "Last Name")]
         public string LastName { get; set; } = string.Empty;
 
