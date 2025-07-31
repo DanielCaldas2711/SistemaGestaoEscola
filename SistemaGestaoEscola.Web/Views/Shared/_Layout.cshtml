@@ -226,9 +226,10 @@
                             </li>
 
                         }
-
-                        <li>@await Component.InvokeAsync("UserSummary")</li>
-
+                        @if (User != null)
+                        {
+                            <li>@await Component.InvokeAsync("UserSummary")</li>
+                        }  
                     }
                     else
                     {

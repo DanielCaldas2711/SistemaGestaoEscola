@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using SistemaGestaoEscola.Web.Data.Entities;
 using SistemaGestaoEscola.Web.Data.Enums;
 using SistemaGestaoEscola.Web.Data.Repositories.Interfaces;
-using SistemaGestaoEscola.Web.Helpers;
 using SistemaGestaoEscola.Web.Helpers.Interfaces;
 using SistemaGestaoEscola.Web.Models;
 
@@ -64,6 +63,7 @@ namespace SistemaGestaoEscola.Web.Controllers
                                     .ToListAsync();
 
                 ViewBag.Courses = new SelectList(coursesModel, "Id", "Name", model.CourseId);
+                ViewBag.Shifts = Enum.GetNames(typeof(Shift)).ToList();
                 TempData["ToastError"] = "Houve um erro.";
                 return View(model);
             }
@@ -79,6 +79,7 @@ namespace SistemaGestaoEscola.Web.Controllers
                                     .ToListAsync();
 
                 ViewBag.Courses = new SelectList(coursesDate, "Id", "Name", model.CourseId);
+                ViewBag.Shifts = Enum.GetNames(typeof(Shift)).ToList();
                 TempData["ToastError"] = "A data de início deve ser antes da data de fim.";
                 return View(model);
             }
@@ -116,6 +117,7 @@ namespace SistemaGestaoEscola.Web.Controllers
                                     .ToListAsync();
 
                     ViewBag.Courses = new SelectList(coursesDuration, "Id", "Name", model.CourseId);
+                    ViewBag.Shifts = Enum.GetNames(typeof(Shift)).ToList();
                     TempData["ToastError"] = "Erro ao criar turma.";
                     return View(model);
                 }
@@ -126,6 +128,7 @@ namespace SistemaGestaoEscola.Web.Controllers
                                     .ToListAsync();
 
             ViewBag.Courses = new SelectList(courses, "Id", "Name", model.CourseId);
+            ViewBag.Shifts = Enum.GetNames(typeof(Shift)).ToList();
             TempData["ToastError"] = "Tempo insuficiente para a duração do curso";
             return View(model);
         }
@@ -316,7 +319,7 @@ namespace SistemaGestaoEscola.Web.Controllers
                     await _classStudentsRepository.CreateAsync(new ClassStudents
                     {
                         ClassId = classId,
-                        StudentId = studentId 
+                        StudentId = studentId
                     });
                 }
 

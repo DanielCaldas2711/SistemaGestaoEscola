@@ -26,8 +26,8 @@ namespace SistemaGestaoEscola.Web.Data
             {
                 FirstName = "Daniel",
                 LastName = "Silva",
-                Email = "danielsilva@yopmail.com",
-                UserName = "danielsilva@yopmail.com",
+                Email = "admindinel@yopmail.com",
+                UserName = "admindinel@yopmail.com",
                 PhoneNumber = "910489426",
                 LockoutEnabled = false
             });      //Creating Admin user if it is not created
