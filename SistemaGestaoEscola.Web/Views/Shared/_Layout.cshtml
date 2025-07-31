@@ -18,14 +18,32 @@
     <link rel="stylesheet" href="https://cdn.syncfusion.com/ej2/29.1.33/material.css" />
 
     <style>
-        body {
+        html, body {
+            height: 100%;
             margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+            body > .content-wrapper {
+                flex: 1 0 auto;
+                display: flex;
+                flex-direction: column;
+                
+            }
+
+        main {
+            flex-grow: 1;
+        }
+
+        body {
             background: #dedcd7;
             font-family: 'Work Sans', sans-serif;
             font-weight: 800;
         }
 
-        footer{
+        footer {
             background: #1B3C53;
         }
 
@@ -55,12 +73,12 @@
             align-items: center;
         }
 
-        nav ul {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-            display: flex;
-        }
+            nav ul {
+                list-style: none;
+                margin: 0;
+                padding: 0;
+                display: flex;
+            }
 
         #navLeft {
             justify-content: flex-start;
@@ -76,7 +94,7 @@
             position: relative;
         }
 
-        nav a{
+        nav a {
             color: #D2C1B6 !important;
             text-decoration: none;
             text-transform: uppercase;
@@ -102,7 +120,6 @@
                 width: 50%;
             }
 
-
         .alert-float-button {
             position: fixed;
             bottom: 1.5rem;
@@ -125,7 +142,7 @@
                 <a asp-controller="Home" asp-action="Index">Dinel</a>
             </div>
             <nav>
-                <ul class="navLeft">
+                <ul id="navLeft">
                     @if (!User.Identity.IsAuthenticated)
                     {
                         <li><a asp-controller="Home" asp-action="Index">Início</a></li>
@@ -136,35 +153,39 @@
                     {
                         <li>
                             <a type="button" class="menu" id="menuDropdown" data-bs-toggle="dropdown" aria-expanded="false">Menu</a>
-                            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="profileDropdown">
+                            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="menuDropdown">
                                 <li><a class="dropdown-item" asp-controller="Home" asp-action="Index">Início</a></li>
                                 <li><a class="dropdown-item" asp-controller="Home" asp-action="Courses">Cursos</a></li>
                                 <li><a class="dropdown-item" asp-controller="Home" asp-action="Classes">Turmas</a></li>
                             </ul>
                         </li>
                     }
+
                     @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
                     {
                         <li><a asp-controller="Users" asp-action="Index">Usuários</a></li>
                         <li><a asp-controller="Subjects" asp-action="Index">Disciplinas</a></li>
                         <li><a asp-controller="Courses" asp-action="Index">Cursos</a></li>
                     }
+
                     @if (User.Identity.IsAuthenticated && User.IsInRole("Secretary"))
                     {
                         <li><a asp-controller="CourseDisciplines" asp-action="Index">Cursos e Disciplinas</a></li>
                         <li><a asp-controller="Classes" asp-action="Index">Turmas</a></li>
                     }
+
                     @if (User.Identity.IsAuthenticated && User.IsInRole("Professor"))
                     {
                         <li><a asp-controller="StudentGrades" asp-action="Index">Notas</a></li>
                     }
+
                     @if (User.Identity.IsAuthenticated && User.IsInRole("Student"))
                     {
                         <li><a asp-controller="StudentGrades" asp-action="MyGrades">Minhas Notas</a></li>
                     }
-                    </ul>
+                </ul>
 
-                <ul class="navRight">
+                <ul id="navRight">
                     @if (User.Identity.IsAuthenticated)
                     {
                         <li>@await Component.InvokeAsync("UserSummary")</li>
@@ -178,15 +199,17 @@
         </div>
     </header>
 
-    <div class="container">
-        <main role="main" class="pb-3">
+    <div class="content-wrapper">
+        <main role="main" class="container pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
+    <br />
+
+    <footer style="position:relative; border-top: 1px solid #333; left: 0; bottom: -20px; height: 70px;  width: 100%;" class="border-top footer text-muted mt-auto">
         <div class="container" style="color:#D2C1B6;">
-            &copy; @DateTime.Now.Year - DINEL - <a asp-controller="Home" asp-action="Privacy">Privacidade</a>
+            &copy; @DateTime.Now.Year - DINEL - <a style="color: #D2C1B6" asp-controller="Home" asp-action="Privacy">Privacidade</a>
         </div>
     </footer>
 
@@ -227,6 +250,7 @@
             </div>
         </div>
     }
+
     <ejs-scripts></ejs-scripts>
 </body>
 </html>

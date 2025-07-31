@@ -1,35 +1,62 @@
-﻿@model List<PublicCourseViewModel>
+﻿@model PaginatedListViewModel<PublicCourseViewModel>
 
 @{
-    ViewData["Title"] = "Cursos Disponíveis";
+    ViewData["Title"] = "Cursos";
 }
 
-<h2 class="mb-4">Cursos</h2>
+<h2 class="mb-4">Nossos Cursos</h2>
 
-@if (!Model.Any())
+@if (!Model.Items.Any())
 {
-    <div class="alert alert-info">Nenhum curso disponível no momento.</div>
+    <div class="alert alert-warning">Nenhum curso disponível.</div>
 }
 else
 {
-    foreach (var course in Model)
-    {
-        <div class="card mb-4 shadow-sm">
-            <div class="card-header bg-secondary text-white">
-                <strong>@course.CourseType - @course.CourseName - @course.Duration horas</strong>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        @foreach (var course in Model.Items)
+        {
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">@course.CourseName</h5>
+                        <p class="card-text">
+                            <strong>Tipo:</strong> @course.CourseType <br />
+                            <strong>Duração:</strong> @course.Duration horas
+                        </p>
+                        <h6>Disciplinas:</h6>
+                        <ul class="list-unstyled mb-0">
+                            @foreach (var subject in course.Subjects)
+                            {
+                                <li>• @subject.SubjectName (@subject.Hours horas)</li>
+                            }
+                        </ul>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">                
-                <h6>Disciplinas:</h6>
-                <ul class="list-group list-group-flush">
-                    @foreach (var subject in course.Subjects)
-                    {
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span>@subject.SubjectName</span>
-                            <span><strong>@subject.Hours</strong> horas</span>
-                        </li>
-                    }
-                </ul>
-            </div>
-        </div>
-    }
+        }
+    </div>
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            @if (Model.HasPreviousPage)
+            {
+                <li class="page-item">
+                    <a class="page-link" asp-action="Courses" asp-route-page="@(Model.PageIndex - 1)">Anterior</a>
+                </li>
+            }
+
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                    <a class="page-link" asp-action="Courses" asp-route-page="@i">@i</a>
+                </li>
+            }
+
+            @if (Model.HasNextPage)
+            {
+                <li class="page-item">
+                    <a class="page-link" asp-action="Courses" asp-route-page="@(Model.PageIndex + 1)">Próxima</a>
+                </li>
+            }
+        </ul>
+    </nav>
 }

@@ -1,4 +1,4 @@
-﻿@model List<PublicClassViewModel>
+﻿@model PaginatedListViewModel<PublicClassViewModel>
 
 @{
     ViewData["Title"] = "Turmas Disponíveis";
@@ -6,7 +6,7 @@
 
 <h3 class="mb-4">Turmas Disponíveis</h3>
 
-@if (!Model.Any())
+@if (!Model.Items.Any())
 {
     <div class="alert alert-info">Nenhuma turma aberta no momento.</div>
 }
@@ -14,7 +14,7 @@ else
 {
     <table class="table table-bordered table-hover">
         <thead class="table-light">
-            <tr>                
+            <tr>
                 <th>Nome</th>
                 <th>Tipo</th>
                 <th>Curso</th>
@@ -26,9 +26,9 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var turma in Model)
+            @foreach (var turma in Model.Items)
             {
-                <tr>                   
+                <tr>
                     <td>@turma.ClassName</td>
                     <td>@turma.CourseType</td>
                     <td>@turma.CourseName</td>
@@ -43,4 +43,23 @@ else
             }
         </tbody>
     </table>
+
+    <nav aria-label="Paginação" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item @(Model.PageIndex == 1 ? "disabled" : "")">
+                <a class="page-link" asp-action="Classes" asp-route-page="@(Model.PageIndex - 1)">Anterior</a>
+            </li>
+
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                    <a class="page-link" asp-action="Classes" asp-route-page="@i">@i</a>
+                </li>
+            }
+
+            <li class="page-item @(Model.PageIndex == Model.TotalPages ? "disabled" : "")">
+                <a class="page-link" asp-action="Classes" asp-route-page="@(Model.PageIndex + 1)">Próxima</a>
+            </li>
+        </ul>
+    </nav>
 }

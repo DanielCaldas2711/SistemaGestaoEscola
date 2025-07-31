@@ -24,64 +24,82 @@ public class HomeController : Controller
         _timeZoneHelper = timeZoneHelper;
     }
 
-    public IActionResult Index()
-    {
-        return View();
-    }
+    public IActionResult Index() => View();
 
-    public IActionResult Privacy()
-    {
-        return View();
-    }
+    public IActionResult Privacy() => View();
 
     [HttpGet]
-    public async Task<IActionResult> Courses()
+    public async Task<IActionResult> Courses(int page = 1, int pageSize = 6)
     {
-        var courses = await _courseRepository.GetAll()
+        var query = _courseRepository.GetAll()
             .Where(c => c.IsActive)
             .Include(c => c.CourseDisciplines)
                 .ThenInclude(cd => cd.Subject)
-            .OrderBy(c => c.Name)
+            .OrderBy(c => c.Name);
+
+        var totalItems = await query.CountAsync();
+        var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+
+        var courses = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync();
 
-        var model = courses.Select(c => new PublicCourseViewModel
+        var model = new PaginatedListViewModel<PublicCourseViewModel>
         {
-            CourseName = c.Name,
-            CourseType = c.Type,
-            Duration = c.Duration,
-            Subjects = c.CourseDisciplines
-                        .Select(cd => new PublicSubjectViewModel
-                        {
-                            SubjectName = cd.Subject.Name,
-                            Hours = cd.Subject.Hours
-                        }).ToList()
-        }).ToList();
+            PageIndex = page,
+            TotalPages = totalPages,
+            Items = courses.Select(c => new PublicCourseViewModel
+            {
+                CourseName = c.Name,
+                CourseType = c.Type,
+                Duration = c.Duration,
+                Subjects = c.CourseDisciplines
+                    .Select(cd => new PublicSubjectViewModel
+                    {
+                        SubjectName = cd.Subject.Name,
+                        Hours = cd.Subject.Hours
+                    }).ToList()
+            }).ToList()
+        };
 
         return View(model);
     }
 
     [HttpGet]
-    public async Task<IActionResult> Classes()
+    public async Task<IActionResult> Classes(int page = 1, int pageSize = 6)
     {
         var now = DateTime.UtcNow;
 
-        var classes = await _classRepository.GetAll()
+        var query = _classRepository.GetAll()
             .Where(c => c.StartingDate > now)
             .Include(c => c.Course)
-            .OrderBy(c => c.Name)
+            .OrderBy(c => c.Name);
+
+        var totalItems = await query.CountAsync();
+        var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+
+        var classes = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync();
 
-        var model = classes.Select(c => new PublicClassViewModel
+        var model = new PaginatedListViewModel<PublicClassViewModel>
         {
-            Id = c.Id,
-            ClassName = c.Name,
-            CourseType = c.Course.Type,
-            CourseName = c.Course.Name,
-            StartingDate = _timeZoneHelper.ConvertUtcToLisbon(c.StartingDate),
-            EndingDate = _timeZoneHelper.ConvertUtcToLisbon(c.EndingDate),
-            DurationHours = c.Course.Duration,
-            Shift = c.Shift
-        }).ToList();
+            PageIndex = page,
+            TotalPages = totalPages,
+            Items = classes.Select(c => new PublicClassViewModel
+            {
+                Id = c.Id,
+                ClassName = c.Name,
+                CourseType = c.Course.Type,
+                CourseName = c.Course.Name,
+                StartingDate = _timeZoneHelper.ConvertUtcToLisbon(c.StartingDate),
+                EndingDate = _timeZoneHelper.ConvertUtcToLisbon(c.EndingDate),
+                DurationHours = c.Course.Duration,
+                Shift = c.Shift
+            }).ToList()
+        };
 
         return View(model);
     }
