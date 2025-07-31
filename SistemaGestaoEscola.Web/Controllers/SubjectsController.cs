@@ -57,14 +57,14 @@ namespace SistemaGestaoEscola.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
-                TempData["ToastError"] = "There was an error in the form.";
+                TempData["ToastError"] = "Houve um erro no formulário.";
                 return View(model);
             }
 
             var exists = await _subjectRepository.GetByCodeAsync(model.Code);
             if (exists != null)
             {
-                TempData["ToastError"] = $"A subject with this code already exists: \n {exists.Code} - {exists.Name}";
+                TempData["ToastError"] = $"Uma disciplina com esse código já existe: \n {exists.Code} - {exists.Name}";
                 return View(model);
             }
 
@@ -72,13 +72,13 @@ namespace SistemaGestaoEscola.Web.Controllers
             {
                 await _subjectRepository.CreateAsync(model);   
                 
-                TempData["ToastSuccess"] = "Subject created successfully!";
+                TempData["ToastSuccess"] = "Disciplina criada com sucesso.";
 
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception)
             {
-                TempData["ToastError"] = "Failed to create subject.";
+                TempData["ToastError"] = "Falha ao criar disciplina.";
             }
             
             return View(model);
@@ -91,18 +91,18 @@ namespace SistemaGestaoEscola.Web.Controllers
             var subject = await _subjectRepository.GetByIdAsync(id);
             if (subject == null)
             {
-                TempData["ToastError"] = "Subject not found.";
+                TempData["ToastError"] = "Disciplina não encontrada.";
                 return RedirectToAction(nameof(Index));
             }
 
             try
             {
                 await _subjectRepository.DeleteAsync(subject);
-                TempData["ToastSuccess"] = "Subject deleted successfully!";
+                TempData["ToastSuccess"] = "Disciplina apagada com sucesso.";
             }
             catch (Exception)
             {
-                TempData["ToastError"] = "An error occurred while trying to delete the subject.";
+                TempData["ToastError"] = "Ocorreu um erro ao apagar a disciplina.";
             }
 
             return RedirectToAction(nameof(Index));
@@ -157,12 +157,12 @@ namespace SistemaGestaoEscola.Web.Controllers
             try
             {
                 await _subjectRepository.UpdateAsync(existingSubject);
-                TempData["ToastSuccess"] = "Subject updated successfully!";
+                TempData["ToastSuccess"] = "Disciplina atualizada com sucesso.";
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception)
             {
-                TempData["ToastError"] = "An error occurred while updating the subject.";
+                TempData["ToastError"] = "Ocorreu um erro ao atualizar a disciplina.";
                 return View(model);
             }
         }
