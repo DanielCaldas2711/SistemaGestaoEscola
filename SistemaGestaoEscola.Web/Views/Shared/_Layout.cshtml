@@ -167,6 +167,10 @@
                                 <li><a class="dropdown-item" asp-controller="Home" asp-action="Classes">Turmas</a></li>
                             </ul>
                         </li>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li><a asp-controller="Admin" asp-action="Dashboard">Dashboard</a></li>
+                        }                        
                     }
 
                     @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))

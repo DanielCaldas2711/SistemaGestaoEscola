@@ -1,0 +1,63 @@
+﻿@model DashboardViewModel
+@using Syncfusion.EJ2.Charts
+
+@{
+    ViewData["Title"] = "Painel de Controle - Admin";
+    int CoursesTotal = Model.InactiveCourses + Model.ActiveCourses;
+}
+
+<div class="container py-5">
+    <h1 class="mb-4 fw-bold text-primary">Painel de Controle</h1>
+    <p class="text-muted">Resumo geral:</p>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="card shadow border-0 text-center p-3">
+                <h5 class="text-secondary">Usuários Registrados</h5>
+                <h2 class="fw-bold text-primary">@Model.TotalUsers</h2>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow border-0 text-center p-3">
+                <h5 class="text-secondary">Disciplinas</h5>
+                <h2 class="fw-bold text-success">@Model.TotalSubjects</h2>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow border-0 text-center p-3">
+                <h5 class="text-secondary">Cursos</h5>
+                <h2 class="fw-bold text-success">@CoursesTotal</h2>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow border-0 text-center p-3">
+                <h5 class="text-secondary">Turmas</h5>
+                <h2 class="fw-bold text-info">@Model.TotalClasses</h2>
+            </div>
+        </div>
+    </div>   
+
+    <div class="row justify-content-center mt-4">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow border-0 p-3 text-center">
+                <h5 class="mb-3 text-primary">Distribuição de Cursos</h5>
+                <ejs-accumulationchart id="coursesChart" height="350px">
+                    <e-accumulation-series-collection>
+                        <e-accumulation-series dataSource="@Model.CoursesChartData"
+                                               xName="Category"
+                                               yName="Value"
+                                               type="Pie">
+                            <e-accumulationseries-datalabel visible="true" name="Category"></e-accumulationseries-datalabel>
+                        </e-accumulation-series>
+                    </e-accumulation-series-collection>
+                </ejs-accumulationchart>
+            </div>
+        </div>
+    </div>
+ </div>
+
+<style>
+    .card {
+        border-radius: 10px;
+    }
+</style>

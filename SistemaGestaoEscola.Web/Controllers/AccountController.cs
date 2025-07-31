@@ -41,16 +41,18 @@ namespace SistemaGestaoEscola.Web.Controllers
                     if (result.Succeeded)
                     {
                         TempData["ToastSuccess"] = "Bem vindo!";
+                        if (User.IsInRole("Admin"))
+                        {
+                            return RedirectToAction("Dashboard", "Admin");
+                        }
                         return RedirectToAction("Index", "Home");
                     }
                 }
                 catch (Exception)
                 {
-                    TempData["ToastError"] = "Houve um problema ao fazer login.";
-                    return View(model);
+                    TempData["ToastError"] = "Houve um problema ao fazer login.";                    
                 }           
             }
-            TempData["ToastError"] = "Erro ao fazer login.";
             return View(model);
         }
         public async Task<IActionResult> Logout()
