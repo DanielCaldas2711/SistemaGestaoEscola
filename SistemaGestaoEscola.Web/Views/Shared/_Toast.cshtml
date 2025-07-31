@@ -1,4 +1,4 @@
-﻿<div class="toast-container position-fixed top-0 end-0 p-4" id="toastContainer" style="z-index: 1060;">
+﻿<div class="toast-container position-fixed top-0 end-0 p-4" id="toastContainer" style="z-index: 1060; margin-top: 80px !important;">
     @if (TempData["ToastSuccess"] != null)
     {
         <div class="custom-toast custom-toast-success shadow">
@@ -6,8 +6,6 @@
                 <div class="toast-content">
                     @TempData["ToastSuccess"]
                 </div>
-                <button type="button" class="btn-close ms-auto" aria-label="Fechar"
-                        onclick="this.closest('.custom-toast').remove();"></button>
             </div>
         </div>
     }
@@ -18,9 +16,7 @@
             <div class="d-flex align-items-center">
                 <div class="toast-content">
                     @TempData["ToastError"]
-                </div>
-                <button type="button" class="btn-close ms-auto" aria-label="Fechar"
-                        onclick="this.closest('.custom-toast').remove();"></button>
+                </div>                
             </div>
         </div>
     }
@@ -39,11 +35,11 @@
     }
 
     .custom-toast-success {
-        background-color: #198754; /* Bootstrap green */
+        background-color: #198754;
     }
 
     .custom-toast-error {
-        background-color: #dc3545; /* Bootstrap red */
+        background-color: #dc3545;
     }
 
     .toast-content {
@@ -79,12 +75,10 @@
             toastContainer.style.top = `${navbarHeight + 5}px`;
         }
 
-        // Fecha toasts existentes automaticamente
         document.querySelectorAll(".custom-toast").forEach(toast => {
-            setTimeout(() => hideToast(toast), 5000);
+            setTimeout(() => hideToast(toast), 2000);
         });
-
-        // Função global para criar toast dinamicamente
+        
         window.showToast = function (type, message) {
             const toastClass = type === 'success' ? 'custom-toast-success' : 'custom-toast-error';
             const toastHtml = `
