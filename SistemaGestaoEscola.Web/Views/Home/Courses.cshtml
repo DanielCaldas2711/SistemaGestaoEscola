@@ -15,6 +15,9 @@ else
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         @foreach (var course in Model.Items)
         {
+            var topSubjects = course.Subjects.Take(4).ToList();
+            var remainingCount = course.Subjects.Count - topSubjects.Count;
+
             <div class="col">
                 <div class="card h-100 shadow-sm">
                     <div class="card-body">
@@ -25,9 +28,13 @@ else
                         </p>
                         <h6>Disciplinas:</h6>
                         <ul class="list-unstyled mb-0">
-                            @foreach (var subject in course.Subjects)
+                            @foreach (var subject in topSubjects)
                             {
                                 <li>• @subject.SubjectName (@subject.Hours horas)</li>
+                            }
+                            @if (remainingCount > 0)
+                            {
+                                <li class="text-muted">+ @remainingCount outras</li>
                             }
                         </ul>
                     </div>

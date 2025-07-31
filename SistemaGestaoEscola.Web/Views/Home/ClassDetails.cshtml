@@ -4,41 +4,49 @@
     ViewData["Title"] = "Detalhes da Turma";
 }
 
-<h3 class="mb-3">@Model.ClassName</h3>
+<div class="container my-5">
+    <h2>@Model.ClassName</h2>
 
-<div class="mb-3">
-    <strong>Curso:</strong> @Model.CourseName <br />
-    <strong>Data de Início:</strong> @Model.StartingDate.ToShortDateString() <br />
-    <strong>Data de Fim:</strong> @Model.EndingDate.ToShortDateString() <br />
-    <strong>Duração:</strong> @Model.Duration horas <br />
-    <strong>Turno:</strong> @Model.Shift
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+            <p class="mb-2"><strong>Curso:</strong> @Model.CourseName</p>
+            <p class="mb-2"><strong>Data de Início:</strong> @Model.StartingDate.ToString("dd/MM/yyyy")</p>
+            <p class="mb-2"><strong> Data de Fim:</strong> @Model.EndingDate.ToString("dd/MM/yyyy")</p>
+            <p class="mb-2"><strong> Duração:</strong> @Model.Duration horas</p>
+            <p class="mb-0"><strong>Turno:</strong> @Model.Shift</p>
+        </div>
+    </div>
+
+    <h5 class="mb-3">Disciplinas</h5>
+
+    @if (!Model.Subjects.Any())
+    {
+        <div class="alert alert-info shadow-sm">
+            Nenhuma disciplina registrada para este curso.
+        </div>
+    }
+    else
+    {
+            <table class="table table-bordered table-striped">
+                <thead class="table-light">
+                    <tr>
+                        <th>Disciplina</th>
+                        <th>Carga Horária</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var subject in Model.Subjects)
+                    {
+                        <tr>
+                            <td>@subject.Name</td>
+                            <td>@subject.Hours horas</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+    }
+
+    <a asp-action="Classes" class="btn btn-outline-primary mt-4">
+        Voltar para Turmas
+    </a>
 </div>
-
-<h5>Disciplinas:</h5>
-
-@if (!Model.Subjects.Any())
-{
-    <p class="text-muted">Nenhuma disciplina registrada para este curso.</p>
-}
-else
-{
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Disciplina</th>
-                <th>Carga Horária</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var subject in Model.Subjects)
-            {
-                <tr>
-                    <td>@subject.Name</td>
-                    <td>@subject.Hours horas</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-
-<a asp-action="Classes" class="btn btn-secondary mt-3">Voltar para Turmas</a>
