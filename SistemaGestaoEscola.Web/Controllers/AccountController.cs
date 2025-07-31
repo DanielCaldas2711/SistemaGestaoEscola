@@ -50,9 +50,11 @@ namespace SistemaGestaoEscola.Web.Controllers
                 }
                 catch (Exception)
                 {
-                    TempData["ToastError"] = "Houve um problema ao fazer login.";                    
+                    TempData["ToastError"] = "Houve um problema ao fazer login.";
+                    return View(model);
                 }           
             }
+            TempData["ToastError"] = "Credencias erradas.";
             return View(model);
         }
         public async Task<IActionResult> Logout()
