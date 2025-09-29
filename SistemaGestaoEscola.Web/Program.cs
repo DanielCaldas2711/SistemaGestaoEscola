@@ -50,6 +50,12 @@ namespace SistemaGestaoEscola.Web
             .AddEntityFrameworkStores<DataContext>()
             .AddDefaultTokenProviders();
 
+            builder.Services.Configure<DataProtectionTokenProviderOptions>(o =>
+            {
+                o.TokenLifespan = TimeSpan.FromMinutes(30);
+            });
+
+
             builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
             var jwt = builder.Configuration.GetSection("Jwt").Get<JwtSettings>() ?? new JwtSettings();
 
@@ -135,6 +141,7 @@ namespace SistemaGestaoEscola.Web
 
             builder.Services.AddScoped<IBlobHelper, BlobHelper>();
             builder.Services.AddScoped<ITimeZoneHelper, TimeZoneHelper>();
+            builder.Services.AddMemoryCache();
 
             builder.Services.AddControllersWithViews();
             builder.Services.AddControllers();
