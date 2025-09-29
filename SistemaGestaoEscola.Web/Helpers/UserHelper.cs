@@ -90,6 +90,12 @@ namespace SistemaGestaoEscola.Web.Helpers
             return await _userManager.GenerateEmailConfirmationTokenAsync(user);
         }
 
+        public async Task<bool> IsEmailConfirmedAsync(User user)
+        {
+            return await _userManager.IsEmailConfirmedAsync(user);
+        }
+
+
         public async Task<IdentityResult> ConfirmEmailAsync(User user, string token)
         {
             return await _userManager.ConfirmEmailAsync(user, token);
@@ -155,9 +161,9 @@ namespace SistemaGestaoEscola.Web.Helpers
                 .CountAsync();
         }
 
-        public async Task<bool> CheckPasswordAsync(User user, LoginRequest request)
+        public async Task<bool> CheckPasswordAsync(User user, string password)
         {
-            return await _userManager.CheckPasswordAsync(user, request.Password);
+            return await _userManager.CheckPasswordAsync(user, password);
         }
 
     }

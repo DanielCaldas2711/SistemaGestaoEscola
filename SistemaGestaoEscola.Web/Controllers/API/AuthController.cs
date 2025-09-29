@@ -26,9 +26,16 @@ namespace SistemaGestaoEscola.Web.Controllers.Api
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
+            if (request == null || string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
+                return BadRequest(new { message = "Email e senha são obrigatórios." });
+
             var user = await _userHelper.GetUserByEmailAsync(request.Email);
-            if (user == null || !await _userHelper.CheckPasswordAsync(user, request))
+
+            if (user == null || !await _userHelper.CheckPasswordAsync(user, request.Password))
                 return Unauthorized(new { message = "Credenciais inválidas." });
+
+            if (!await _userHelper.IsEmailConfirmedAsync(user))
+                return Unauthorized(new { message = "Confirme seu email antes de fazer login." });
 
             var roles = await _userHelper.GetRolesAsync(user);
 

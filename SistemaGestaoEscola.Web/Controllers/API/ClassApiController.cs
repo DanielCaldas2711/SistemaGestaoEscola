@@ -1,25 +1,20 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
-using SistemaGestaoEscola.Web.Data;
 using SistemaGestaoEscola.Web.Data.Repositories.Interfaces;
-using SistemaGestaoEscola.Web.Helpers;
-using SistemaGestaoEscola.Web.Helpers.Interfaces;
-using System.Linq;
 
 namespace SistemaGestaoEscola.Web.ApiControllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ClassApiController : ControllerBase
-    {        
+    {
         private readonly IClassRepository _classRepository;
         private readonly IClassStudentsRepository _classStudentsRepository;
 
         public ClassApiController(IClassRepository classRepository,
             IClassStudentsRepository classStudentsRepository)
-        {            
+        {
             _classRepository = classRepository;
             _classStudentsRepository = classStudentsRepository;
         }
@@ -48,6 +43,11 @@ namespace SistemaGestaoEscola.Web.ApiControllers
                     cs.FullName,
                     cs.Email
                 });
+
+            if (!students.Any())
+            {
+                return NoContent();
+            }
 
             return Ok(students);
         }

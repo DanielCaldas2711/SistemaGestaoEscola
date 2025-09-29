@@ -9,19 +9,19 @@ using SistemaGestaoEscola.Web.Data.Repositories.Interfaces;
 using SistemaGestaoEscola.Web.Helpers;
 using SistemaGestaoEscola.Web.Helpers.Interfaces;
 using SistemaGestaoEscola.Web.Models;
-using System.Text;
-using Syncfusion.Licensing;
 using SuperShop.Helpers;
+using Syncfusion.Licensing;
+using System.Text;
 
 namespace SistemaGestaoEscola.Web
 {
     public class Program
     {
+        private const string ApiOrCookieScheme = "ApiOrCookie";
+
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
-            #region Syncfusion
 
             var syncfusionLicense = builder.Configuration["Syncfusion:LicenseKey"];
             if (!string.IsNullOrWhiteSpace(syncfusionLicense))
@@ -29,27 +29,14 @@ namespace SistemaGestaoEscola.Web
                 SyncfusionLicenseProvider.RegisterLicense(syncfusionLicense);
             }
 
-            #endregion
-
-            #region DataContext
-
             string connectionString;
-
             if (builder.Environment.IsDevelopment())
-            {
-                connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-            }
+                connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
             else
-            {
-                connectionString = builder.Configuration.GetConnectionString("SomeeConnection");
-            }
+                connectionString = builder.Configuration.GetConnectionString("SomeeConnection")!;
 
             builder.Services.AddDbContext<DataContext>(options =>
                 options.UseSqlServer(connectionString));
-
-            #endregion
-
-            #region Identity
 
             builder.Services.AddIdentity<User, IdentityRole>(options =>
             {
@@ -62,15 +49,28 @@ namespace SistemaGestaoEscola.Web
             })
             .AddEntityFrameworkStores<DataContext>()
             .AddDefaultTokenProviders();
-            #endregion
-
-            #region JWT Authentication
 
             builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
-            var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>();
+            var jwt = builder.Configuration.GetSection("Jwt").Get<JwtSettings>() ?? new JwtSettings();
 
-            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options =>
+            builder.Services
+                .AddAuthentication(options =>
+                {
+                    options.DefaultScheme = ApiOrCookieScheme;
+                    options.DefaultAuthenticateScheme = ApiOrCookieScheme;
+                    options.DefaultChallengeScheme = ApiOrCookieScheme;
+                })
+                .AddPolicyScheme(ApiOrCookieScheme, "API or Cookie", options =>
+                {
+                    options.ForwardDefaultSelector = context =>
+                    {
+                        var path = context.Request.Path;
+                        return path.StartsWithSegments("/api", StringComparison.OrdinalIgnoreCase)
+                            ? JwtBearerDefaults.AuthenticationScheme
+                            : IdentityConstants.ApplicationScheme; // Cookie do Identity
+                    };
+                })
+                .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
                 {
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
@@ -78,9 +78,12 @@ namespace SistemaGestaoEscola.Web
                         ValidateAudience = true,
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
-                        ValidIssuer = jwtSettings?.Issuer,
-                        ValidAudience = jwtSettings?.Audience,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings?.Key ?? "fallback_key"))
+                        ValidIssuer = jwt.Issuer,
+                        ValidAudience = jwt.Audience,
+                        IssuerSigningKey = new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes(string.IsNullOrWhiteSpace(jwt.Key) ? "fallback_key" : jwt.Key)
+                        ),
+                        ClockSkew = TimeSpan.Zero
                     };
 
                     options.Events = new JwtBearerEvents
@@ -90,18 +93,29 @@ namespace SistemaGestaoEscola.Web
                             context.HandleResponse();
                             context.Response.StatusCode = 401;
                             context.Response.ContentType = "application/json";
-                            var result = System.Text.Json.JsonSerializer.Serialize(new
-                            {
-                                message = "Token não encontrado"
-                            });
+                            var msg = builder.Environment.IsDevelopment()
+                                ? "Não autorizado (Bearer ausente/inválido/expirado)."
+                                : "Não autorizado.";
+                            var result = System.Text.Json.JsonSerializer.Serialize(new { message = msg });
                             return context.Response.WriteAsync(result);
+                        },
+                        OnAuthenticationFailed = context =>
+                        {
+                            if (builder.Environment.IsDevelopment())
+                            {
+                                context.Response.StatusCode = 401;
+                                context.Response.ContentType = "application/json";
+                                var result = System.Text.Json.JsonSerializer.Serialize(new
+                                {
+                                    message = "Falha ao autenticar o token.",
+                                    error = context.Exception.Message
+                                });
+                                return context.Response.WriteAsync(result);
+                            }
+                            return Task.CompletedTask;
                         }
                     };
                 });
-
-            #endregion
-
-            #region Services & Repositories
 
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
@@ -122,10 +136,6 @@ namespace SistemaGestaoEscola.Web
             builder.Services.AddScoped<IBlobHelper, BlobHelper>();
             builder.Services.AddScoped<ITimeZoneHelper, TimeZoneHelper>();
 
-            #endregion
-
-            #region MVC + API + Swagger
-
             builder.Services.AddControllersWithViews();
             builder.Services.AddControllers();
 
@@ -136,7 +146,7 @@ namespace SistemaGestaoEscola.Web
 
                 c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
                 {
-                    Description = "JWT Authorization header usando o esquema Bearer. \r\n\r\n Exemplo: 'Bearer eyJhbGciOi...'",
+                    Description = "JWT no header Authorization. Ex.: Bearer {seu token}",
                     Name = "Authorization",
                     In = Microsoft.OpenApi.Models.ParameterLocation.Header,
                     Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
@@ -159,7 +169,10 @@ namespace SistemaGestaoEscola.Web
                 });
             });
 
-            #endregion
+            if (builder.Environment.IsDevelopment())
+            {
+                builder.Logging.AddConsole();
+            }
 
             builder.Configuration
                 .SetBasePath(Directory.GetCurrentDirectory())
@@ -168,8 +181,6 @@ namespace SistemaGestaoEscola.Web
                 .AddEnvironmentVariables();
 
             var app = builder.Build();
-
-            #region Middleware
 
             if (!app.Environment.IsDevelopment())
             {
@@ -189,7 +200,7 @@ namespace SistemaGestaoEscola.Web
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "ETEMB API V1");
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "SistemaGestaoEscola API V1");
                 c.RoutePrefix = "swagger";
             });
 
@@ -201,12 +212,8 @@ namespace SistemaGestaoEscola.Web
 
             RunSeeding(app);
 
-            #endregion
-
             app.Run();
         }
-
-        #region Seeder
 
         private static void RunSeeding(IHost app)
         {
@@ -214,7 +221,5 @@ namespace SistemaGestaoEscola.Web
             var seeder = scope.ServiceProvider.GetRequiredService<SeedDb>();
             seeder.SeedAsync().Wait();
         }
-
-        #endregion
     }
 }

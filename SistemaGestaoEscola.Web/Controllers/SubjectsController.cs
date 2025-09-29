@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using SistemaGestaoEscola.Web.Data.Entities;
 using SistemaGestaoEscola.Web.Data.Repositories.Interfaces;
@@ -70,8 +69,8 @@ namespace SistemaGestaoEscola.Web.Controllers
 
             try
             {
-                await _subjectRepository.CreateAsync(model);   
-                
+                await _subjectRepository.CreateAsync(model);
+
                 TempData["ToastSuccess"] = "Disciplina criada com sucesso.";
 
                 return RedirectToAction(nameof(Index));
@@ -80,7 +79,7 @@ namespace SistemaGestaoEscola.Web.Controllers
             {
                 TempData["ToastError"] = "Falha ao criar disciplina.";
             }
-            
+
             return View(model);
         }
 

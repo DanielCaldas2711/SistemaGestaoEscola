@@ -49,6 +49,8 @@ namespace SistemaGestaoEscola.Web.Helpers.Interfaces
 
         Task<int> GetUnreadAlertsCountAsync(ClaimsPrincipal user);
 
-        Task<bool> CheckPasswordAsync(User user, LoginRequest request);
+        Task<bool> CheckPasswordAsync(User user, string password);
+
+        Task<bool> IsEmailConfirmedAsync(User user);
     }
 }
