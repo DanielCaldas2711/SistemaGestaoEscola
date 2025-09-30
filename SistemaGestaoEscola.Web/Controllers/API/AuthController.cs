@@ -84,7 +84,7 @@ namespace SistemaGestaoEscola.Web.Controllers.Api
             {
                 token = tokenString,
                 expiration = token.ValidTo,
-                user = new { user.Id, user.FullName, user.Email, roles }
+                user = new { user.Id, user.FullName, user.Email, roles, user.ProfilePicturePath}
             });
         }
 
