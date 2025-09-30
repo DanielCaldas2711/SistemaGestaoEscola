@@ -222,7 +222,7 @@ namespace SistemaGestaoEscola.Web.Controllers
                     }
 
                     var blobName = await _blobHelper.UploadBlobAsync(model.ProfilePicture, "profilepictures");
-                    user.ProfilePicturePath = $"https://sistemagestaoescola.blob.core.windows.net/profilepictures/{blobName}";
+                    user.ProfilePicturePath = $"https://blobgestaoescola.blob.core.windows.net/profilepictures/{blobName}";
                 }
                 catch (Exception)
                 {

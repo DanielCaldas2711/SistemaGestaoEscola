@@ -117,7 +117,7 @@ namespace SistemaGestaoEscola.Web.Controllers
                 if (model.Role == UserRole.Student.ToString() && model.RegistrationPhoto != null)
                 {
                     var blobId = await _blobHelper.UploadBlobAsync(model.RegistrationPhoto, "registerpictures");
-                    user.RegistrationPhotoPath = $"https://sistemagestaoescola.blob.core.windows.net/registerpictures/{blobId}";
+                    user.RegistrationPhotoPath = $"https://blobgestaoescola.blob.core.windows.net/registerpictures/{blobId}";
                     await _userHelper.UpdateUserAsync(user);
                 }
 
@@ -214,7 +214,7 @@ namespace SistemaGestaoEscola.Web.Controllers
                 if (model.Role == UserRole.Student.ToString() && model.RegistrationPhoto != null)
                 {
                     var blobId = await _blobHelper.UploadBlobAsync(model.RegistrationPhoto, "registerpictures");
-                    user.RegistrationPhotoPath = $"https://sistemagestaoescola.blob.core.windows.net/registerpictures/{blobId}";
+                    user.RegistrationPhotoPath = $"https://blobgestaoescola.blob.core.windows.net/registerpictures/{blobId}";
                 }
 
                 var result = await _userHelper.UpdateUserAsync(user);
