@@ -45,7 +45,7 @@ namespace SistemaGestaoEscola.Web.Controllers.Api
         }
 
         [HttpPut("me/profile")]
-        [RequestSizeLimit(20_000_000)] // 20 MB
+        //[RequestSizeLimit(20_000_000)] // 20 MB
         public async Task<IActionResult> UpdateMyProfile([FromForm] UpdateProfileRequest req)
         {
             var user = await GetCurrentUserAsync();
@@ -65,6 +65,11 @@ namespace SistemaGestaoEscola.Web.Controllers.Api
             }
 
             // 2) Foto
+            if (req.ProfileImage != null && req.ProfileImage.Length > 2 * 1024 * 1024)
+            {
+                return BadRequest(new { message = "A imagem não pode exceder 2 MB." });
+            }
+
             if (req.ProfileImage is not null && req.ProfileImage.Length > 0)
             {
                 try
