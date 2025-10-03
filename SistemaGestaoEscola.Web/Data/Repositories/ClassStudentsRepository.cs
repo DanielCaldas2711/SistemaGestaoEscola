@@ -18,6 +18,11 @@ namespace SistemaGestaoEscola.Web.Data.Repositories
             _userHelper = userHelper;
         }
 
+        public async Task<ClassStudents> GetStudentByStudentId(string id)
+        {
+            return await _dataContext.ClassStudents.FirstOrDefaultAsync(cs => cs.StudentId == id);
+        }
+
         public async Task<bool> IsStudentInClass(int ClassId, string StudentId)
         {
            return await _dataContext.ClassStudents.Where(s => s.ClassId == ClassId).AnyAsync(s => s.StudentId == StudentId);

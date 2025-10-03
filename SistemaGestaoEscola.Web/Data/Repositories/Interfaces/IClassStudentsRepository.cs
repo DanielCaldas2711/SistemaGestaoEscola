@@ -8,5 +8,7 @@ namespace SistemaGestaoEscola.Web.Data.Repositories.Interfaces
         Task<bool> IsStudentInClass(int ClassId, string StudentId);
 
         Task<List<StudentRequest>> GetAllStudentsFromClass(int classId);
+
+        Task<ClassStudents> GetStudentByStudentId(string id);
     }    
 }

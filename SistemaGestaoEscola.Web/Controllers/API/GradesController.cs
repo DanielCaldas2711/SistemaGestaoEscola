@@ -128,5 +128,40 @@ namespace SistemaGestaoEscola.Web.Controllers.API
 
             return Ok(result);
         }
+
+        /// <summary>
+        /// Verifica se o aluno possui novas notas (HasNewGrades == true).
+        /// </summary>
+        [HttpGet("notifications/{studentId}")]
+        public async Task<IActionResult> CheckNewGrades(Guid studentId)
+        {
+            var hasNewGrades = await _classStudentsRepository.GetAll()
+                .AsNoTracking()
+                .AnyAsync(cs => cs.StudentId == studentId.ToString() && cs.HasNewGrades);
+
+            return Ok(new { hasNewGrades });
+        }
+
+        /// <summary>
+        /// Marca como lidas as novas notas (HasNewGrades = false).
+        /// </summary>
+        [HttpPost("notifications/{studentId}/clear")]
+        public async Task<IActionResult> ClearNewGrades(Guid studentId)
+        {
+            var entries = await _classStudentsRepository.GetAll()
+                .Where(cs => cs.StudentId == studentId.ToString() && cs.HasNewGrades)
+                .ToListAsync();
+
+            if (!entries.Any())
+                return Ok(new { updated = false });
+
+            foreach (var cs in entries)
+            {
+                cs.HasNewGrades = false;
+                await _classStudentsRepository.UpdateAsync(cs);
+            }
+
+            return Ok(new { updated = true });
+        }
     }
 }

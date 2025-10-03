@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SistemaGestaoEscola.Web.Data;
+using SistemaGestaoEscola.Web.Data.Entities;
 using SistemaGestaoEscola.Web.Data.Repositories.Interfaces;
 using SistemaGestaoEscola.Web.Helpers.Interfaces;
 using SistemaGestaoEscola.Web.Models;
@@ -15,13 +17,16 @@ namespace SistemaGestaoEscola.Web.Controllers
         private readonly ISubjectRepository _subjectRepository;
         private readonly IClassProfessorsRepository _classProfessorsRepository;
         private readonly IClassRepository _classRepository;
+        private readonly DataContext _context;
 
-        public StudentGradesController(IStudentGradesRepository studentGradesRepository,
+        public StudentGradesController(
+            IStudentGradesRepository studentGradesRepository,
             IUserHelper userHelper,
             IClassStudentsRepository classStudentsRepository,
             ISubjectRepository subjectRepository,
             IClassProfessorsRepository classProfessorsRepository,
-            IClassRepository classRepository)
+            IClassRepository classRepository,
+            DataContext context) 
         {
             _studentGradesRepository = studentGradesRepository;
             _userHelper = userHelper;
@@ -29,6 +34,7 @@ namespace SistemaGestaoEscola.Web.Controllers
             _subjectRepository = subjectRepository;
             _classProfessorsRepository = classProfessorsRepository;
             _classRepository = classRepository;
+            _context = context;
         }
 
         [Authorize(Roles = "Professor")]
@@ -164,7 +170,9 @@ namespace SistemaGestaoEscola.Web.Controllers
             }
 
             var isAuthorized = await _classProfessorsRepository.GetAll()
-                .AnyAsync(cp => cp.ClassId == model.ClassId && cp.SubjectId == model.SubjectId && cp.ProfessorId == user.Id);
+                .AnyAsync(cp => cp.ClassId == model.ClassId
+                             && cp.SubjectId == model.SubjectId
+                             && cp.ProfessorId == user.Id);
 
             if (!isAuthorized)
             {
@@ -172,54 +180,76 @@ namespace SistemaGestaoEscola.Web.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            var subject = await _subjectRepository.GetAll().FirstOrDefaultAsync(s => s.Id == model.SubjectId);
+            var subject = await _subjectRepository.GetAll()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s => s.Id == model.SubjectId);
+
+            if (subject == null)
+            {
+                TempData["ToastError"] = "Disciplina não encontrada.";
+                return RedirectToAction(nameof(Manage), new { id = model.ClassId });
+            }
 
             foreach (var student in model.Students)
             {
-                if (subject != null)
+                if (student.UnexcusedAbsence > subject.Absence)
                 {
-                    if (student.UnexcusedAbsence > subject.Absence)
-                    {
-                        TempData["ToastError"] = "Insira corretamente as horas de faltas dos alunos.";
-                        return RedirectToAction(nameof(Index));
-                    }
+                    TempData["ToastError"] = "Insira corretamente as horas de faltas dos alunos.";
+                    return RedirectToAction(nameof(Manage), new { id = model.ClassId });
                 }
             }
 
             try
             {
-                foreach (var student in model.Students)
-                {
-                    var grade = await _studentGradesRepository.GetAll()
-                        .FirstOrDefaultAsync(g => g.ClassStudentsId == student.ClassStudentId && g.SubjectId == model.SubjectId);
+                var classStudentIds = model.Students
+                    .Select(s => s.ClassStudentId)
+                    .Distinct()
+                    .ToList();
 
-                    if (grade == null)
+                var existingGrades = await _studentGradesRepository.GetAll()
+                    .Where(g => g.SubjectId == model.SubjectId && classStudentIds.Contains(g.ClassStudentsId))
+                    .ToListAsync();
+
+                var gradeByCsId = existingGrades.ToDictionary(g => g.ClassStudentsId);
+
+                foreach (var s in model.Students)
+                {
+                    if (gradeByCsId.TryGetValue(s.ClassStudentId, out var grade))
                     {
-                        await _studentGradesRepository.CreateAsync(new Data.Entities.StudentGrades
-                        {
-                            ClassStudentsId = student.ClassStudentId,
-                            SubjectId = model.SubjectId,
-                            Value = student.Grade ?? 0,
-                            UnexcusedAbsence = student.UnexcusedAbsence
-                        });
+                        grade.Value = s.Grade ?? 0;
+                        grade.UnexcusedAbsence = s.UnexcusedAbsence;
+                        await _studentGradesRepository.UpdateAsync(grade);
                     }
                     else
                     {
-                        grade.Value = student.Grade ?? 0;
-                        grade.UnexcusedAbsence = student.UnexcusedAbsence;
-                        await _studentGradesRepository.UpdateAsync(grade);
+                        var newGrade = new Data.Entities.StudentGrades
+                        {
+                            ClassStudentsId = s.ClassStudentId,
+                            SubjectId = model.SubjectId,
+                            Value = s.Grade ?? 0,
+                            UnexcusedAbsence = s.UnexcusedAbsence
+                        };
+                        await _studentGradesRepository.CreateAsync(newGrade);
+                    }
+
+                    var classStudent = await _classStudentsRepository.GetByIdAsync(s.ClassStudentId);
+                    if (classStudent != null && !classStudent.HasNewGrades)
+                    {
+                        classStudent.HasNewGrades = true;
+                        await _classStudentsRepository.UpdateAsync(classStudent);
                     }
                 }
 
                 TempData["ToastSuccess"] = "Notas salvas com sucesso!";
             }
-            catch (Exception)
+            catch
             {
                 TempData["ToastError"] = "Erro ao salvar as notas.";
             }
 
             return RedirectToAction(nameof(Manage), new { id = model.ClassId });
         }
+
 
         [HttpGet]
         [Authorize(Roles = "Student")]
